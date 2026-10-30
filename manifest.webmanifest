@@ -1,0 +1,17 @@
+{
+  "name": "Lisa — Inspection en bâtiment",
+  "short_name": "Lisa",
+  "description": "Outil d'aide à l'inspection en bâtiment au Québec",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f4c5c",
+  "theme_color": "#0f4c5c",
+  "lang": "fr-CA",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
