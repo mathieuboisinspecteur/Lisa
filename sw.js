@@ -1,9 +1,9 @@
 /* Service worker de Lisa : permet l'utilisation sans réseau. */
-const CACHE="lisa-v6";
+const CACHE="lisa-v7";
 const LOCAL=["./","index.html","manifest.webmanifest","icons/icon-192.png","icons/icon-512.png","icons/icon-maskable-512.png"];
 const LIBS=["https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js","https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"];
 self.addEventListener("install",e=>{e.waitUntil((async()=>{const c=await caches.open(CACHE);
-await Promise.all(LOCAL.map(u=>c.add(u).catch(()=>{})));
+await Promise.all(LOCAL.map(u=>c.add(new Request(u,{cache:"reload"})).catch(()=>{})));
 await Promise.all(LIBS.map(u=>fetch(new Request(u,{mode:"no-cors"})).then(r=>c.put(u,r)).catch(()=>{})));
 self.skipWaiting()})())});
 self.addEventListener("activate",e=>{e.waitUntil((async()=>{for(const k of await caches.keys())if(k!==CACHE&&k.startsWith("lisa-"))await caches.delete(k);await self.clients.claim()})())});
