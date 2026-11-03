@@ -835,8 +835,23 @@ const COMP=[
  src:"Sujet vu plus tard dans le programme. Cette fiche vient de connaissances générales du bâtiment : valide-la avec ton prof.",val:true}
 ];
 function etTutorFrom(k){const x=COMP[k];S.cr="is";S.etq={cid:"is",k:-1,q:"Explique-moi : "+x.t+". Pourquoi ça arrive et qu'est-ce que je dois observer?",p:true,r:true};go("cours")}
+const compN=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[-'’]/g," ");
+const compHit=(h,t)=>h.includes(t)||(t.length>3&&/[sx]$/.test(t)&&h.includes(t.slice(0,-1)));
+function compFind(q){const ts=compN(q).split(/\s+/).filter(t=>t.length>=3);if(!ts.length)return null;
+const sc=COMP.map((x,k)=>{const h=compN([x.t,x.vu,x.pq.join(" "),x.ob.join(" "),(x.kw||[]).join(" "),x.li.join(" "),x.cat||""].join(" ")),th=compN(x.t+" "+(x.kw||[]).join(" "));let n=0,w=0;ts.forEach(t=>{if(compHit(h,t)){n++;if(compHit(th,t))w+=2}});return{k,n,w,all:n===ts.length}});
+let r=sc.filter(s=>s.all),part=false;if(!r.length){r=sc.filter(s=>s.n>0);part=true}
+r.sort((a,b)=>b.w-a.w||b.n-a.n);return{r,part}}
+const compTile=(x,k,sn)=>`<button class="tile" style="${sn?"width:100%;text-align:left;margin-bottom:8px":""}" onclick="S.cp=${k};render();scrollTo(0,0)"><span>${x.ic}</span>${esc(x.t)}${sn?`<small>${esc(x.vu.length>110?x.vu.slice(0,107)+"…":x.vu)}</small>`:""}</button>`;
+function compDraw(){const o=document.getElementById("compres"),l=document.getElementById("complist");if(!o)return;const q=(S.cq||"").trim();if(l)l.style.display=q?"none":"";if(!q){o.innerHTML="";return}
+const f=compFind(q);if(!f){o.innerHTML=`<div class="mut">Écris au moins 3 lettres.</div>`;return}
+o.innerHTML=f.r.length?`<div class="mut" style="margin-bottom:6px">${f.part?"Aucune fiche ne contient tous tes mots. Résultats partiels :":f.r.length+" fiche"+(f.r.length>1?"s":"")+" trouvée"+(f.r.length>1?"s":"")}</div>`+f.r.map(s=>compTile(COMP[s.k],s.k,true)).join(""):`<div class="card"><b>Pas de fiche pour « ${esc(q)} »</b><div class="mut" style="margin:6px 0">Essaie un autre mot (ex. : fissure, court-circuit, humidité, toit), ou demande au tuteur.</div><button class="alt" onclick="compAsk()">🧑‍🏫 Demander au tuteur</button></div>`}
+function compQ(v){S.cq=v;compDraw()}
+function compAsk(){const q=(S.cq||"").trim();if(!q)return;S.cr="is";S.etq={cid:"is",k:-1,q:"Explique-moi : "+q+". Pourquoi ça arrive et qu'est-ce que je dois observer?",p:true,r:true};go("cours")}
+const COMP_CATS=["Structure","Eau et humidité","Toiture et enveloppe","Électricité","Plomberie","Chauffage et ventilation","Intérieur","Sécurité"];
 function comp(){const i=S.cp;
-if(i==null)return `<button class="alt" onclick="go('home')">← Accueil</button><h2>🔍 Comprendre</h2><div class="mut">Choisis ce que tu vois. Lisa t'explique pourquoi ça arrive et ce qu'il faut observer. C'est pour ton apprentissage : dans un rapport, on décrit sans donner la cause.</div><div class="grid2" style="margin-top:10px">${COMP.map((x,k)=>`<button class="tile" onclick="S.cp=${k};render();scrollTo(0,0)"><span>${x.ic}</span>${esc(x.t)}</button>`).join("")}</div>`;
+if(i==null){setTimeout(compDraw,0);return `<button class="alt" onclick="go('home')">← Accueil</button><h2>🔍 Comprendre</h2><div class="mut">Écris ce que tu vois ou choisis dans la liste. Lisa t'explique pourquoi ça arrive et ce qu'il faut observer. C'est pour ton apprentissage : dans un rapport, on décrit sans donner la cause.</div>
+<label for="compq">Chercher un symptôme</label><input id="compq" type="search" placeholder="Ex. : fissure, court-circuit, humidité, toit, odeur" value="${esc(S.cq||"")}" oninput="compQ(this.value)"><div id="compres" style="margin-top:8px"></div>
+<div id="complist" style="${(S.cq||"").trim()?"display:none":""}">${COMP_CATS.map(c=>{const L=COMP.map((x,k)=>[x,k]).filter(a=>a[0].cat===c);return L.length?`<h2>${esc(c)}</h2><div class="grid2">${L.map(a=>compTile(a[0],a[1],false)).join("")}</div>`:""}).join("")}</div>`}
 const x=COMP[i],L=a=>`<ul>${a.map(y=>`<li>${esc(y)}</li>`).join("")}</ul>`;
 return `<button class="alt" onclick="S.cp=null;render();scrollTo(0,0)">← Symptômes</button><h2>${x.ic} ${esc(x.t)}</h2>
 <div class="card"><b>Ce que tu vois</b><p>${esc(x.vu)}</p></div>
@@ -847,6 +862,170 @@ return `<button class="alt" onclick="S.cp=null;render();scrollTo(0,0)">← Sympt
 <div class="card"><b>Dans le rapport</b><p>${esc(x.rp)}</p><div class="mut">Constats types liés dans Lisa :</div>${L(x.li)}</div>
 <div class="mut">Source : ${esc(x.src)} Explications en mots à moi, à valider avec ton prof.</div>
 <button class="big alt" onclick="etTutorFrom(${i})">🧑‍🏫 Poser une question au tuteur sur ce sujet</button>`}
+/* ===== Comprendre : autres symptômes (électricité, eau, toit, chauffage, etc.) ===== */
+["Structure","Structure","Structure","Structure","Structure","Eau et humidité"].forEach((c,i)=>{COMP[i].cat=c;});
+COMP[0].kw=["fissure","lézarde","craque","fente","béton","fondation","tassement"];
+COMP[1].kw=["mur qui penche","renflement","poussée","sous-sol","bombé"];
+COMP[2].kw=["fissure","dalle","efflorescence","pyrite","salpêtre","poudre blanche"];
+COMP[3].kw=["plancher","craque","grince","vibre","rebondit","incliné","solive"];
+COMP[4].kw=["fissure","brique","maçonnerie","linteau","mortier","ventre de boeuf"];
+COMP[5].kw=["moisissure","tache","noire","champignon","humidité","condensation"];
+const VALT="Cette fiche vient de connaissances générales du bâtiment, pas d'un recueil de ton cours : valide-la avec ton prof et tes recueils.";
+COMP.push(
+{cat:"Électricité",ic:"⚡",t:"Disjoncteur qui saute ou court-circuit",kw:["court-circuit","court circuit","disjoncteur","fusible","surcharge","panneau","étincelle","électrique","coupe-circuit","sauter"],
+ vu:"Un disjoncteur qui déclenche souvent, un fusible qui grille, une odeur de brûlé près d'une prise ou du panneau, une étincelle.",
+ pq:["Court-circuit : le courant trouve un chemin beaucoup plus court que prévu, par exemple deux fils dont l'isolant est abîmé qui se touchent. Le courant devient très fort d'un coup, et le disjoncteur coupe pour protéger le circuit.","Surcharge : trop d'appareils sur un même circuit demandent plus de courant que le fil et le disjoncteur peuvent supporter. Le disjoncteur déclenche après un moment.","Défaut de mise à la terre : un courant passe là où il ne devrait pas, par exemple dans le boîtier d'un appareil. Les protections à fuite de courant (DDFT) déclenchent pour ça.","Raccordement lâche ou fil abîmé : la connexion chauffe, l'isolant fond, et ça peut finir en court-circuit ou en incendie.","Un appareil défectueux ou un disjoncteur usé peut aussi être en cause."],
+ ob:["Combien de disjoncteurs sont déclenchés et lesquels ? Le panneau est-il bien identifié ?","Traces de chaleur, de brûlé, de noircissement sur le panneau, les prises ou les boîtes.","Fils exposés, boîtes ouvertes, rallonges utilisées comme câblage permanent.","L'âge du panneau, son état et son type (disjoncteurs ou fusibles).","Deux fils sous une même borne de disjoncteur (double raccordement)."],
+ ph:["Une photo du panneau fermé, puis de l'intérieur seulement si la norme et tes consignes le permettent et que c'est sécuritaire.","Une photo de l'étiquette du panneau (marque, ampérage) et des traces de chaleur."],
+ ex:"Selon l'étendue : un entrepreneur électricien licencié (RBQ) ou un maître électricien évalue le panneau et les circuits. Une odeur de brûlé ou des traces de chaleur demandent une attention rapide. Valide avec ton prof les cas où on ouvre le panneau et ceux où on s'abstient.",
+ rp:"Décris ce que tu vois : disjoncteurs déclenchés, traces de chaleur, état du panneau, emplacement. Explique le rôle du panneau et le risque de choc ou d'incendie. Recommande un électricien avec sa qualification et le facteur temps. Pas de cause, pas de réparation.",
+ li:["Marques de chaleur au panneau électrique", "Double raccordement au panneau", "Fils exposés ou boîtes ouvertes", "Panneau à fusibles ou entrée faible"],
+ src:VALT,val:true},
+{cat:"Électricité",ic:"🔌",t:"Prise ou interrupteur chaud, noirci ou qui grésille",kw:["prise","interrupteur","chaud","chaude","noirci","brûlé","grésille","étincelle","arc","aluminium","connexion lâche","ddft"],
+ vu:"Une prise qui chauffe, une plaque noircie ou fondue, un bruit de grésillement, une odeur de plastique chaud.",
+ pq:["Connexion lâche : un fil mal serré crée une résistance. Le courant y fait de la chaleur, et le plastique fond ou noircit.","Prise usée : les contacts perdent leur tension avec le temps et chauffent quand on branche un appareil puissant.","Surcharge : un appareil qui tire beaucoup de courant (chauffage d'appoint, bouilloire) sur une prise ou une rallonge trop faible.","Fil d'aluminium ancien : sur certaines maisons des années 1960-1970, il se détend et s'oxyde aux connexions, ce qui augmente le risque de surchauffe.","Un arc électrique (petites étincelles dans la prise) laisse une trace noire et une odeur de brûlé."],
+ ob:["La couleur et la chaleur de la plaque (sans toucher à un fil).","Des traces noires ou fondues sur la prise, la plaque ou le mur.","Les prises près de l'eau : protection DDFT présente ?","Les rallonges et multiprises utilisées en permanence.","Le type de fil visible à la boîte, si accessible."],
+ ph:["Une photo de la prise ou de la plaque de près, avec l'emplacement.","Une photo d'ensemble de la pièce."],
+ ex:"Un électricien licencié (RBQ) évalue la prise et le circuit. Une plaque fondue ou une odeur de brûlé demandent une attention rapide : décris le facteur temps dans ton rapport.",
+ rp:"Décris la prise (emplacement, traces, température au toucher si tu l'as notée). Explique le risque d'incendie ou de choc. Recommande un électricien et le facteur temps. Pas de cause.",
+ li:["Prise ou interrupteur brisé, sans plaque ou chaud au toucher", "Protection DDFT absente", "Rallonge utilisée comme câblage permanent", "À signaler : Câblage d'aluminium dans les circuits de prises"],
+ src:VALT,val:true},
+{cat:"Eau et humidité",ic:"💧",t:"Eau ou humidité au sous-sol",kw:["inondation","humide","flaque","puisard","salpêtre","infiltration","sous-sol","eau","drain","moisi","odeur de moisi"],
+ vu:"Des taches d'eau, des flaques, du salpêtre (poudre blanche), une odeur de moisi, un puisard qui pompe souvent.",
+ pq:["Terrain ou gouttières : l'eau de pluie descend contre la fondation au lieu de s'éloigner. Elle entre par les fissures ou le joint entre le mur et la dalle.","Drainage de la fondation déficient : le drain autour de la semelle est bouché, mal pente ou absent (maisons anciennes).","Nappe d'eau souterraine haute : l'eau pousse sous la dalle (pression hydrostatique), surtout au printemps ou après de grosses pluies.","Fuite de plomberie ou condensation sur des tuyaux froids : l'eau ne vient pas toujours de l'extérieur.","Une fissure dans le mur ou la dalle donne un chemin à l'eau, mais elle n'est pas toujours la cause."],
+ ob:["Où est l'eau : au pied d'un mur, au centre de la dalle, près d'une fenêtre ?","Traces anciennes : cernes, salpêtre, rouille, peinture qui cloque.","L'extérieur : pente du terrain, gouttières, descentes, puits de fenêtre.","Le puisard : couvercle, pompe, eau claire ou boueuse.","Une lecture d'humidité si tu as l'appareil, notée avec la date."],
+ ph:["Photos d'ensemble, puis de près avec un repère.","La lecture d'humidité, l'heure et l'endroit."],
+ ex:"Selon la source : un entrepreneur en drainage ou en fondations, un plombier ou un couvreur. S'il y a des fissures, un ingénieur ou une entreprise de fondations. Valide avec ton prof.",
+ rp:"Décris les traces d'eau (emplacement, étendue, lecture d'humidité). Explique le risque pour les finis, la structure et la santé. Recommande qui consulter et le facteur temps. Pas de cause.",
+ li:["Infiltration d'eau au sous-sol", "Pente du terrain vers la fondation", "Gouttières et descentes défectueuses", "Pompe de puisard absente ou qui ne démarre pas"],
+ src:VALT,val:true},
+{cat:"Toiture et enveloppe",ic:"🏠",t:"Toit : bardeaux usés et infiltration",kw:["toiture","toit","fuite","bardeau","solin","plafond taché","cheminée","évent","granules","larmier"],
+ vu:"Des bardeaux courbés, fendus ou manquants, des granules dans les gouttières, des taches d'eau au plafond.",
+ pq:["Vieillissement : le soleil, la chaleur et le gel usent les bardeaux. Ils perdent leurs granules, durcissent, se fendent et se recourbent.","Solin défectueux : autour d'une cheminée, d'un mur ou d'un évent, le métal rouillé, décollé ou mal scellé laisse entrer l'eau.","Pénétration mal scellée : un évent de plomberie ou une sortie de ventilation dont le collet est fendu.","Pose défectueuse : bardeaux mal fixés, clous qui ressortent, pente trop faible pour le matériau.","Barrage de glace : l'eau fondue se bloque au bord du toit et remonte sous les bardeaux."],
+ ob:["L'état général du toit : bardeaux, granules, mousse, déformations.","Les solins et les collets autour des cheminées et des évents.","Les noues et le bord du toit.","À l'intérieur : taches au plafond, dans l'entretoit, cernes autour de la cheminée.","La date approximative de la couverture, si connue."],
+ ph:["Photos d'ensemble de chaque pan de toit.","Photos de près des solins et des zones usées."],
+ ex:"Un entrepreneur couvreur licencié évalue l'état de la couverture et ce qui reste de vie utile. Une infiltration active demande une attention rapide. Valide avec ton prof comment l'inspecteur décrit la durée de vie restante.",
+ rp:"Décris l'état observé, les zones touchées et l'accès (au sol, jumelles, échelle). Explique le rôle du toit et le risque d'infiltration. Recommande un couvreur, avec le facteur temps. Pas de cause, pas de prix.",
+ li:["Revêtement usé (bardeaux)", "Solins défectueux", "Pénétrations mal scellées", "Bardeaux manquants ou soulevés"],
+ src:VALT,val:true},
+{cat:"Toiture et enveloppe",ic:"❄️",t:"Glaçons et barrage de glace",kw:["comble","glace","glaçon","barrage de glace","ice dam","gouttière gelée","stalactite","débord"],
+ vu:"Des glaçons le long du toit, une épaisse crête de glace au bord, des taches d'eau sur un mur extérieur ou au plafond après le dégel.",
+ pq:["La chaleur de la maison fait fondre la neige sur le toit. L'eau descend, gèle de nouveau au bord du toit (froid, sans chaleur en dessous), et forme une crête de glace qui retient l'eau derrière elle.","L'eau retenue remonte sous les bardeaux et entre dans l'entretoit ou le mur.","Les causes habituelles de la chaleur perdue : isolation insuffisante au plafond, fuites d'air chaud, entretoit mal ventilé.","Des gouttières obstruées ou une membrane de bord manquante aggravent le problème."],
+ ob:["La profondeur de l'isolant et l'état de l'entretoit.","Les fuites d'air : trappe, luminaires, conduits, cheminées.","La ventilation de l'entretoit : soffites, faîtière.","Les gouttières et le bord du toit.","Des traces d'eau ou de givre sous le support de couverture."],
+ ph:["Photos du bord du toit et des glaçons (date et heure).","Photos de l'isolant et des soffites."],
+ ex:"Selon la situation : un couvreur, un spécialiste en isolation ou en ventilation. Valide avec ton prof qui recommander.",
+ rp:"Décris les glaçons et les traces d'eau, avec l'emplacement. Explique le risque (infiltration, moisissures, dommages aux finis). Recommande qui consulter et le facteur temps. Pas de cause.",
+ li:["Isolation insuffisante du comble", "Ventilation du comble insuffisante", "Gouttières et descentes défectueuses", "Givre ou condensation au comble"],
+ src:VALT,val:true},
+{cat:"Toiture et enveloppe",ic:"🪟",t:"Buée ou condensation sur les fenêtres",kw:["buée","vitre","givre","condensation","fenêtre","double vitrage","scellé","humidité"],
+ vu:"De la buée ou des gouttes d'eau sur la vitre, du givre en hiver, de la buée coincée entre les deux vitres.",
+ pq:["Condensation sur la face intérieure : l'air humide de la maison touche une vitre froide. C'est un signe d'humidité intérieure élevée, ou de vitrage peu isolant.","Humidité élevée : séchage du linge, cuisine ou douches sans ventilation efficace.","Buée entre les vitres : le joint du double vitrage a lâché, et l'air humide est entré. La vitre ne peut plus sécher.","Cadre froid ou mal scellé : l'air froid entre et refroidit la vitre."],
+ ob:["La buée est-elle à l'intérieur, à l'extérieur ou entre les vitres ?","L'humidité de la maison, la ventilation (VRC, extracteurs).","Des traces d'eau, de moisissures ou de pourriture sur le cadre ou l'appui.","Le calfeutrage intérieur et extérieur.","Des courants d'air autour du cadre."],
+ ph:["Une photo de la fenêtre avec la buée, avec la date et la température.","Une photo du cadre et de l'appui."],
+ ex:"Pour un vitrage embué : un spécialiste en fenêtres peut remplacer l'unité. Pour l'humidité, la ventilation et le contrôle de l'humidité : un spécialiste en ventilation. Valide avec ton prof.",
+ rp:"Décris où se trouve la buée et l'état du cadre. Explique le risque (dégradation du cadre, moisissures). Recommande qui consulter. Pas de cause.",
+ li:["Fenêtre ou porte défectueuse","Revêtement ou calfeutrage détérioré","Moisissures apparentes"],
+ src:VALT,val:true},
+{cat:"Plomberie",ic:"🚿",t:"Drain lent, odeurs d'égout ou fuite de plomberie",kw:["drain","plomberie","tuyau","siphon","odeur","égout","évent","fuite","robinet","toilette","gargouille","gargouillis","lent","bouché"],
+ vu:"De l'eau qui s'écoule lentement, des gargouillis, une odeur d'égout, une trace d'eau sous un évier ou autour d'un tuyau.",
+ pq:["Drain partiellement bouché : des cheveux, du gras ou des débris freinent l'écoulement.","Évent bouché ou absent : l'air ne peut pas entrer dans le réseau, l'eau s'écoule mal et les siphons se vident (gargouillis, odeurs).","Siphon sec ou défectueux : sans eau dans le siphon, les odeurs d'égout remontent.","Pente insuffisante ou conduite écrasée : l'eau s'accumule dans le drain.","Raccord ou joint qui fuit : l'eau suinte, tache le bois ou cause de la pourriture.","Matériaux anciens (plomb, acier galvanisé, fonte) qui se corrodent."],
+ ob:["Teste l'écoulement de chaque appareil et note le temps.","Sous l'évier : raccords, siphon, traces d'eau, rouille.","Les matériaux visibles des conduites : cuivre, plastique, acier, plomb.","La pression d'eau et la couleur de l'eau.","Des taches d'eau au plafond sous une salle de bain."],
+ ph:["Photos des raccords, du siphon et des traces d'eau.","Une photo de l'étiquette ou du matériau des conduites."],
+ ex:"Un plombier licencié (RBQ) ou un maître mécanicien en tuyauterie évalue le réseau. Une fuite active demande une attention rapide. Valide avec ton prof les tests de l'inspecteur.",
+ rp:"Décris ce que tu observes (appareil, emplacement, temps d'écoulement, traces). Explique le risque (dégâts d'eau, moisissures, odeurs). Recommande un plombier et le facteur temps. Pas de cause.",
+ li:["Fuite ou trace de fuite","Drain lent ou appareil instable","Matériau de tuyauterie désuet"],
+ src:VALT,val:true},
+{cat:"Plomberie",ic:"🔥",t:"Chauffe-eau âgé ou qui fuit",kw:["chauffe-eau","chauffe eau","réservoir","eau chaude","soupape","rouille","fuite","anode"],
+ vu:"Un réservoir ancien, de la rouille à la base, une flaque, de l'eau chaude qui manque ou qui sent.",
+ pq:["Vieillissement : l'intérieur du réservoir se corrode avec les années, surtout si l'eau est agressive. Un réservoir trop vieux peut percer.","Soupape de sûreté qui goutte : la pression ou la température est trop haute, ou la soupape est défectueuse.","Dépôts dans le réservoir : le calcaire isole l'élément chauffant, et l'appareil fait du bruit ou chauffe mal.","Raccords qui fuient : l'eau vient parfois des tuyaux, pas du réservoir.","Évacuation des gaz (pour les modèles à combustion) mal installée ou bloquée."],
+ ob:["L'âge, lu sur l'étiquette (numéro de série).","La rouille, les traces d'eau et la flaque en dessous.","La soupape de sûreté et son tuyau d'évacuation.","Un bac de récupération ou un drain de plancher à proximité.","Pour un appareil à combustion : tirage, évacuation, air de combustion."],
+ ph:["Une photo de l'étiquette et de l'ensemble de l'appareil.","Une photo des traces d'eau ou de la rouille."],
+ ex:"Un plombier licencié évalue l'appareil. Pour un appareil à gaz ou à mazout, un technicien qualifié pour ce combustible. Une fuite active demande une attention rapide.",
+ rp:"Décris l'appareil (âge, état, traces). Explique le risque de dégât d'eau ou de mauvais fonctionnement. Recommande une évaluation avec le facteur temps. Pas de cause.",
+ li:["Chauffe-eau âgé ou défectueux", "Soupape de sûreté du chauffe-eau sans tuyau d'évacuation"],
+ src:VALT,val:true},
+{cat:"Chauffage et ventilation",ic:"🌡️",t:"Chauffage : appareil âgé, bruits, odeurs",kw:["fournaise","chaudière","chauffage","mazout","gaz","cheminée","conduit","monoxyde","thermopompe","bruit","odeur"],
+ vu:"Une fournaise ou une chaudière ancienne, des bruits inhabituels, une odeur de brûlé ou de gaz, de la suie ou de la rouille autour de l'appareil.",
+ pq:["Âge : les composants s'usent, les échangeurs de chaleur se fissurent et l'efficacité baisse.","Manque d'entretien : filtres encrassés, brûleur sale, pièces usées. Ça cause des arrêts et des bruits.","Évacuation des gaz défectueuse : un conduit rouillé, mal raccordé ou obstrué laisse les gaz de combustion entrer dans la maison. Le monoxyde de carbone est invisible et sans odeur.","Air de combustion insuffisant : l'appareil manque d'air et brûle mal.","Réservoir à mazout ancien : rouille et fuites possibles."],
+ ob:["Le type d'appareil, l'âge, l'étiquette, les dates d'entretien.","Le conduit d'évacuation : supports, rouille, pente, raccords.","De la suie, des traces de brûlé, de la rouille.","Les détecteurs de monoxyde de carbone et de fumée.","Les filtres, les registres et le thermostat."],
+ ph:["Photos de l'appareil, de l'étiquette et du conduit.","Photos de la suie, de la rouille ou des fuites."],
+ ex:"Un technicien ou un entrepreneur qualifié selon le combustible (gaz, mazout, bois, électricité) évalue l'appareil. Une odeur de gaz ou de monoxyde, ou un conduit fortement détérioré, demande une attention immédiate.",
+ rp:"Décris l'appareil, son âge et ce que tu vois. Explique le risque (incendie, monoxyde de carbone, panne). Recommande un technicien qualifié et le facteur temps. Pas de cause.",
+ li:["Équipement âgé", "Cheminée ou conduit détérioré", "Réservoir à mazout âgé", "Traces de suie ou de retour de fumée"],
+ src:VALT,val:true},
+{cat:"Chauffage et ventilation",ic:"🌬️",t:"Entretoit : givre, moisissures ou isolation faible",kw:["grenier","comble","entretoit","isolation","ventilation","faîtière","soffite","givre","moisissure","vermiculite","cellulose","extracteur","hotte"],
+ vu:"Du givre ou des taches sur le dessous du support de toit, un isolant tassé ou mouillé, des soffites bloqués, un conduit qui rejette dans l'entretoit.",
+ pq:["L'air chaud et humide de la maison monte dans l'entretoit par les fuites (trappe, luminaires, conduits) et se condense sur le bois froid du toit.","Ventilation insuffisante : sans entrées d'air (soffites) et sorties (faîtière), l'humidité ne sort pas.","Isolant insuffisant ou tassé : la chaleur monte, la neige fond, et le risque de glaçons augmente.","Un extracteur de salle de bain ou de hotte qui rejette dans l'entretoit y ajoute de l'humidité.","Un isolant mouillé perd son efficacité et peut moisir."],
+ ob:["Épaisseur et état de l'isolant, répartition, tassement.","Les soffites : obstrués par l'isolant ?","Les sorties d'air : faîtière, aérateurs de pignon.","Où débouchent les conduits d'extracteur.","Du givre, des cernes, de la moisissure, des clous qui rouillent."],
+ ph:["Photos de l'entretoit depuis la trappe (selon ton accès).","Photos des conduits et des soffites."],
+ ex:"Selon le cas : un spécialiste en isolation, en ventilation ou un couvreur. S'il y a des moisissures, une entreprise spécialisée en décontamination. Valide avec ton prof.",
+ rp:"Décris l'état de l'isolant, de la ventilation et les traces observées, avec les limites d'accès. Explique le risque (condensation, moisissures, pertes de chaleur). Recommande qui consulter. Pas de cause.",
+ li:["Isolation insuffisante du comble", "Ventilation du comble insuffisante", "Extracteur mal raccordé", "Givre ou condensation au comble", "Isolant mouillé ou écrasé dans le comble"],
+ src:VALT,val:true},
+{cat:"Toiture et enveloppe",ic:"🥶",t:"Murs froids, courants d'air, factures élevées",kw:["froid","courant d'air","isolation","pont thermique","fuite d'air","facture","chauffage","fenêtre","prise","thermographie"],
+ vu:"Des murs ou des planchers froids, des courants d'air près des prises ou des fenêtres, des pièces difficiles à chauffer.",
+ pq:["Fuites d'air : l'air froid entre par des joints non scellés (autour des fenêtres, des prises, de la lisse, de la trappe de grenier).","Isolation insuffisante ou mal posée : l'isolant tassé, mal rempli ou absent laisse passer la chaleur.","Ponts thermiques : des endroits (coins, linteaux, solive de rive) où la chaleur passe plus vite à travers le mur.","Fenêtres ou portes anciennes, mal étanches.","Le pare-air ou le pare-vapeur est absent ou abîmé."],
+ ob:["Où les courants d'air sont-ils sentis ? Près d'un mur, d'une prise, d'un cadre ?","Des taches de saleté sur l'isolant, des traces de condensation.","L'état des joints et du calfeutrage.","Le type de fenêtres et de portes.","Si tu as l'équipement : une lecture de température de surface."],
+ ph:["Photos des zones concernées, avec une mention de la température extérieure.","Photos du calfeutrage ou des joints en mauvais état."],
+ ex:"Selon le cas : un spécialiste en isolation ou en étanchéité à l'air, ou un fenêtrier. Valide avec ton prof.",
+ rp:"Décris les zones froides ou les fuites d'air observées. Explique le risque (inconfort, humidité, énergie). Recommande qui consulter. Pas de cause.",
+ li:["Isolation insuffisante du comble", "Revêtement ou calfeutrage détérioré", "Fenêtre ou porte défectueuse", "Pare-vapeur absent ou déchiré"],
+ src:VALT,val:true},
+{cat:"Structure",ic:"🪵",t:"Bois mou, pourri ou attaqué",kw:["pourriture","pourri","bois mou","champignon","insecte","fourmi","termite","humidité","lisse","solive","tournevis","charpente"],
+ vu:"Un bois qui s'effrite, un morceau qui s'enfonce sous la pression d'un tournevis, des taches, des cavités, de la sciure.",
+ pq:["Humidité prolongée : le bois qui reste mouillé (infiltration, condensation, contact avec le béton ou la terre) est attaqué par des champignons.","Le contact direct entre le bois et le sol ou le béton non protégé permet à l'humidité de monter.","Insectes : des fourmis charpentières ou d'autres insectes creusent le bois, souvent déjà humide.","Un défaut de drainage ou de ventilation (vide sanitaire, entretoit, sous-sol) aggrave la situation.","Une fuite de plomberie ou de toit mal réparée."],
+ ob:["Les endroits à risque : lisse d'assise, bout de solives dans la fondation, bas de poteaux, sous les salles de bain, près des fenêtres.","La dureté du bois (sonde, tournevis) sur une petite zone, sans endommager la structure.","Des traces d'eau, de moisissures, de sciure ou de galeries.","La source d'humidité possible.","L'étendue de la zone touchée."],
+ ph:["Une photo de la zone avec une règle ou un repère.","Une photo de la source d'eau possible."],
+ ex:"Selon l'étendue et le risque pour la structure : un ingénieur ou une entreprise en charpente. Pour les insectes : un exterminateur. Pour la source d'eau : la personne de métier concernée. Valide avec ton prof.",
+ rp:"Décris l'emplacement, l'étendue et la dureté observée. Explique le rôle de la pièce de bois et le risque. Recommande qui consulter et le facteur temps. Pas de cause.",
+ li:["Bois de charpente avec traces de pourriture ou d'insectes", "Trace d'infiltration au plafond ou au mur"],
+ src:"Inspection structure, chapitres 1 à 3 (humidité, lisse d'assise, solives, murs). Pour les insectes, voir tes recueils.",val:true},
+{cat:"Eau et humidité",ic:"🌳",t:"Terrain, gouttières et végétation : l'eau va vers la maison",kw:["terrain","pente","gouttière","descente","arbre","racine","drainage","végétation","remblai","eau","extérieur"],
+ vu:"Un terrain qui descend vers la maison, des gouttières qui débordent, une descente qui rejette au pied du mur, des arbres collés à la fondation.",
+ pq:["Pente inversée : l'eau de pluie coule vers la fondation au lieu de s'en éloigner, s'accumule et s'infiltre.","Gouttières et descentes obstruées, brisées ou trop courtes : l'eau tombe au pied du mur.","Remblai tassé : le sol autour de la maison s'est affaissé et forme une cuvette.","Arbres ou arbustes trop près : les racines peuvent s'attaquer aux fondations et aux drains, l'ombre garde le bardage humide.","Sol argileux : il gonfle avec l'eau et bouge."],
+ ob:["La pente du terrain sur les quatre côtés.","Les gouttières : joints, pente, obstruction, descentes et rejets.","Le dégagement entre le sol et le bas du revêtement.","Les arbres et arbustes près de la maison, les racines visibles.","Les trous, les tassements, les flaques."],
+ ph:["Photos de chaque façade avec le terrain.","Photos des descentes et des rejets."],
+ ex:"Le plus souvent un entrepreneur en aménagement paysager ou en drainage, ou le propriétaire pour l'entretien (gouttières). Si des signes de mouvement apparaissent, un ingénieur ou une entreprise de fondations. Valide avec ton prof.",
+ rp:"Décris la pente, l'état des gouttières et la végétation observés. Explique le risque pour la fondation et le sous-sol. Recommande qui consulter ou quel entretien. Pas de cause.",
+ li:["Pente du terrain vers la fondation", "Gouttières et descentes défectueuses", "Végétation trop près", "Dégagement insuffisant entre le revêtement et le sol"],
+ src:VALT,val:true},
+{cat:"Sécurité",ic:"🔔",t:"Détecteurs de fumée et de monoxyde de carbone",kw:["détecteur","avertisseur","fumée","monoxyde","incendie","pile","sécurité","co"],
+ vu:"Des avertisseurs absents, périmés, sans pile ou qui ne se déclenchent pas au test.",
+ pq:["Un avertisseur de fumée détecte les particules d'un feu naissant et alerte les occupants pour qu'ils sortent à temps.","Un détecteur de monoxyde de carbone détecte un gaz invisible et sans odeur produit par une combustion incomplète (appareil de chauffage, foyer, garage).","Les appareils ont une durée de vie limitée : la date de fabrication est inscrite dessus.","Une pile morte, un appareil débranché ou mal placé peut l'empêcher de fonctionner."],
+ ob:["La présence aux endroits requis : chaque étage, près des chambres, dans le corridor, près des appareils à combustion.","La date de fabrication.","Un test avec le bouton.","Le type : pile, filaire, interrelié.","Des traces de peinture ou de saleté sur l'appareil."],
+ ph:["Une photo de l'avertisseur avec sa date.","Une photo de l'emplacement."],
+ ex:"C'est souvent le propriétaire ou un électricien qui installe ou remplace. Valide avec ton prof et le Code (Partie 9, section 9.10) les exigences.",
+ rp:"Décris la présence, l'emplacement et le résultat du test. Explique le rôle de l'appareil et le risque. Recommande de remplacer ou d'ajouter, avec le facteur temps. Pas de cause.",
+ li:["Détecteurs absents ou non fonctionnels"],
+ src:"Code de construction (Partie 9, 9.10.19 Avertisseur de fumée) : à valider avec ton prof. "+VALT,val:true},
+{cat:"Sécurité",ic:"🪜",t:"Escalier ou garde-corps instable ou dangereux",kw:["escalier","garde-corps","rampe","main courante","marche","balcon","galerie","chute","barreau"],
+ vu:"Un garde-corps qui bouge, des marches inégales, une main courante absente, un balcon qui tremble.",
+ pq:["Fixation affaiblie : les vis ou les ancrages se desserrent ou rouillent, ou le bois pourrit à la base des poteaux.","Pourriture du bois : humidité sur un balcon ou un escalier extérieur.","Dimensions irrégulières : des marches de hauteur différente font trébucher.","Hauteur ou espacement des barreaux non conformes (surtout dans les maisons anciennes).","Un balcon mal ancré à la maison peut se détacher."],
+ ob:["Pousse doucement sur le garde-corps et la rampe pour voir s'ils bougent.","La hauteur des marches : sont-elles toutes pareilles ?","Pourriture à la base des poteaux et aux fixations au mur.","L'espacement des barreaux et la hauteur du garde-corps.","L'ancrage du balcon à la maison."],
+ ph:["Photos de l'escalier avec une règle pour la hauteur.","Photos des fixations et de la pourriture."],
+ ex:"Un entrepreneur en charpente ou en menuiserie évalue et répare. Si l'ancrage d'un balcon semble douteux, un ingénieur. Valide avec ton prof les valeurs du Code à utiliser.",
+ rp:"Décris l'élément (emplacement, mouvement observé, dimensions mesurées). Explique le risque de chute. Recommande qui consulter et le facteur temps. Pas de cause.",
+ li:["Garde-corps ou escalier défectueux", "Escalier intérieur : marches inégales ou instables", "Main courante absente ou instable"],
+ src:"Code de construction (Partie 9, section 9.8 Escaliers, rampes, mains courantes et garde-corps) : à valider avec ton prof. "+VALT,val:true},
+{cat:"Intérieur",ic:"🧩",t:"Fissures dans le gypse ou clous qui ressortent",kw:["gypse","plâtre","fissure","plafond","joint","cloison","clou","vis","tassement","mur intérieur"],
+ vu:"Des fissures aux joints ou aux coins, des petits renflements ronds, des clous ou des vis qui ressortent, un plafond qui paraît ondulé.",
+ pq:["Retrait et variations d'humidité : le bois de l'ossature gonfle et rétrécit avec les saisons, ce qui fait bouger le gypse et ouvre les joints.","Tassement ou mouvement : des fissures en diagonale aux coins de portes et de fenêtres peuvent signaler un mouvement de la structure.","Joints mal finis : ruban ou composé insuffisants.","Clous ou vis qui ressortent : le bois a séché ou bougé derrière.","Humidité : un gypse qui gonfle ou se tache vient souvent d'une infiltration."],
+ ob:["Où sont les fissures : aux joints, aux coins d'ouvertures, au plafond, en diagonale ?","Leur largeur, leur nombre et si elles continuent d'un étage à l'autre.","Des portes ou des fenêtres qui coincent, des planchers inclinés.","Des taches d'eau ou de la peinture qui cloque.","Les fissures sont-elles récentes (arêtes nettes) ou anciennes (peinture dedans) ?"],
+ ph:["Photos des fissures avec une règle.","Une photo d'ensemble de la pièce pour situer."],
+ ex:"Les fissures isolées et fines sont souvent esthétiques. S'il y a des signes de mouvement (coins d'ouvertures, planchers inclinés), voir la fiche des fondations et des planchers, et recommande un ingénieur ou une entreprise spécialisée. Valide avec ton prof.",
+ rp:"Décris les fissures (emplacement, largeur, orientation) et les autres signes. Explique le risque si mouvement. Recommande qui consulter si pertinent, avec le facteur temps. Pas de cause.",
+ li:["Fissures dans les murs ou les plafonds", "Plafond affaissé ou cloqué", "Trace d'infiltration au plafond ou au mur"],
+ src:VALT,val:true},
+{cat:"Intérieur",ic:"🚪",t:"Portes ou fenêtres qui coincent",kw:["porte","fenêtre","coince","frotte","ferme mal","gauchi","tassement","humidité","jeu"],
+ vu:"Une porte qui frotte, qui ne ferme plus, un cadre en diagonale, une fenêtre difficile à ouvrir.",
+ pq:["Humidité : le bois gonfle en été et rétrécit en hiver, ce qui fait frotter les portes.","Tassement de la structure : si un côté de la maison descend, les cadres sortent d'équerre.","Installation défectueuse : cadre mal d'aplomb ou mal calé.","Gauchissement du bois ou affaissement des charnières.","Plancher incliné ou qui fléchit près de l'ouverture."],
+ ob:["Où frotte la porte : en haut, en bas, d'un côté ?","Le jeu autour du cadre, de forme régulière ou en coin ?","Des fissures dans le gypse aux coins de l'ouverture.","Un plancher incliné, un affaissement visible.","Plusieurs portes touchées dans la même zone ?"],
+ ph:["Une photo de l'ouverture avec un niveau.","Une photo du jeu mesuré."],
+ ex:"Une porte isolée est le plus souvent un réglage ou un ajustement de menuiserie. Plusieurs portes touchées avec fissures et plancher incliné : voir la fiche des planchers et des fondations, avec ingénieur ou entreprise spécialisée. Valide avec ton prof.",
+ rp:"Décris les portes ou fenêtres touchées, leur emplacement et les mesures. Explique le risque. Recommande qui consulter si des signes de mouvement existent. Pas de cause.",
+ li:["Fenêtre ou porte défectueuse", "Plancher affaissé ou incliné"],
+ src:VALT,val:true}
+);
 // Suivi des notes : double seuil du C.E.I. (50 % à l'examen final + moyenne globale de 60 %)
 function etGL(cid){const g=S.et.gr||(S.et.gr={});return g[cid]||(g[cid]=[])}
 function etNum(v){if(v===undefined||v===null)return null;const t=String(v).replace(",",".").replace("%","").trim();if(t==="")return null;const n=parseFloat(t);return isFinite(n)?n:null}
@@ -1697,7 +1876,7 @@ IDB.open().then(async d=>{IDB.db=d;const pf=await IDB.get("prof");if(pf)S.prof=p
 /* ===== Version installable (hors Claude) ===== */
 if(!(window.claude&&claude.use)){DL={save:async({filename,data})=>{const t=/\.json$/i.test(filename)?"application/json":/\.html?$/i.test(filename)?"text/html":"text/plain";const b=data instanceof Blob?data:new Blob([data],{type:t});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}}}
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
-window.LISA_V="8";
+window.LISA_V="9";
 function lisaToast(m,btn){let t=document.getElementById("lisat");if(!t){t=document.createElement("div");t.id="lisat";t.setAttribute("role","status");t.style.cssText="position:fixed;left:12px;right:12px;bottom:76px;z-index:99999;background:#0f4c5c;color:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 4px 16px rgba(0,0,0,.3);display:flex;gap:10px;align-items:center;justify-content:space-between";document.body.appendChild(t)}t.innerHTML="";const s=document.createElement("span");s.textContent=m;t.appendChild(s);if(btn){const b=document.createElement("button");b.textContent=btn[0];b.style.cssText="flex:none;background:#fff;color:#0f4c5c;border:0;border-radius:8px;padding:8px 12px;font-weight:700";b.onclick=btn[1];t.appendChild(b)}else setTimeout(()=>{try{t.remove()}catch(e){}},5000)}
 async function lisaUpdate(){const o=document.getElementById("luo"),say=m=>{if(o)o.textContent=m;lisaToast(m)};
 try{if(!("serviceWorker" in navigator)){location.reload();return}
