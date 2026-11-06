@@ -1,4 +1,4 @@
-/* Service worker de Lisa : permet l'utilisation sans réseau. */
+/* Service worker de Lisa : permet l'utilisation sans réseau. */ 
 const CACHE="lisa-v10";
 const LOCAL=["./","index.html","manifest.webmanifest","icons/icon-192.png","icons/icon-512.png","icons/icon-maskable-512.png"];
 const LIBS=["https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js","https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"];
