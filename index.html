@@ -667,6 +667,7 @@ ${S.et.hi?"":`<div class="card" style="border-color:var(--pri)"><b>👋 Commence
 <div class="grid2">${T("🏛️","Quel code ?","régime et partie du Code","openRg('etu')")}${T("📝","Devoirs QCM","pièges, fiches, vérification","S.qc&&(S.qc.tab='q');go('qcm')")}${T("🔍","Comprendre","pourquoi ça arrive","S.cp=null;go('comp')")}${T("📚","Références","Code, guides, recherche","go('refs')")}${T("📊","Mes notes","suivi et seuils de réussite","go('bul')")}${T("📋","Mes documents","ce qu'il me manque","go('inv')")}</div>
 <h2>Session 1 · en cours</h2>${ses(1)}<h2>Session 2</h2>${ses(2)}<h2>Session 3</h2>${ses(3)}
 <div class="mut" style="margin-top:12px">Touche un cours pour voir son plan, cocher les chapitres vus, écrire tes notes et ranger tes documents. Tout reste sur ton appareil.</div>
+${edCard()}
 <div class="row" style="margin-top:10px"><button class="alt" onclick="go('apropos')">ℹ️ À propos</button>${window.LISA_V?`<button class="alt" onclick="lisaUpdate()">🔄 Mise à jour</button>`:""}${S.et.only?"":`<button class="alt" onclick="etSet('insp')">🏠 Mode Inspection</button>`}<button class="alt" onclick="etMergeAll()">🏁 Fin de formation</button></div><div class="mut" style="font-size:12px;margin-top:4px">Fin de formation : copie tous tes recueils de cours dans 📚 Références pour les garder après la formation.</div>`}
 function etTog(id,k,v){const o=S.et.suivi[id]||(S.et.suivi[id]={});if(v)o[k]=true;else delete o[k];etSave();const c=etC(id),p=etProg(c),a=$("etp"),b=$("etpb");if(a)a.textContent=p.v+"/"+p.n+" chapitres vus";if(b)b.style.width=p.p+"%"}
 function etNote(id,k,v){const o=S.et.notes[id]||(S.et.notes[id]={});if(v)o[k]=v;else delete o[k];etSave()}
@@ -2110,6 +2111,28 @@ A.props=L.slice(0,5).map(z=>({x:anClamp(z.x,0,1),y:anClamp(z.y,0,1),r:anClamp(z.
 A.plist();
 o.textContent=A.props.length?"Suggestions à confirmer : l'IA peut se tromper et placer les cercles un peu à côté. Vérifie avec ce que tu as vu. Le constat reste écrit par toi.":"L'IA ne voit rien de clair sur cette photo. Ça ne veut pas dire qu'il n'y a rien : fie-toi à ce que tu as vu sur place."}catch(e){o.textContent=aiErr(e)}}
 
+/* ----- Sauvegarde / restauration des documents étudiants ----- */
+const edB64=b=>new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(",")[1]||"");r.onerror=()=>ko(r.error);r.readAsDataURL(b)});
+const edBlob=(b64,type)=>{const s=atob(b64),a=new Uint8Array(s.length);for(let i=0;i<s.length;i++)a[i]=s.charCodeAt(i);return new Blob([a],{type:type||"application/octet-stream"})};
+function edInfo(){let d="";try{d=localStorage.getItem("lisa_edbk")||""}catch(e){}return d}
+async function edSave(){const o=$("edx");if(!o)return;if(!DL){o.textContent="L'enregistrement n'est pas disponible ici.";return}
+try{o.textContent="⏳ Préparation de la sauvegarde…";const ids=[];Object.values(S.et.docs||{}).forEach(L=>(L||[]).forEach(d=>ids.push(d)));
+const docs={},txt={};let n=0,miss=0;for(const d of ids){n++;o.textContent="⏳ Document "+n+" sur "+ids.length+"…";const f=await IDB.get("etdoc:"+d.id);if(f){docs[d.id]={name:d.name,type:f.type||d.type||"",b64:await edB64(f)}}else miss++;const t=await IDB.get("etxt:"+d.id);if(t)txt[d.id]=t}
+const out=JSON.stringify({app:"Lisa-etudiant",v:1,at:new Date().toISOString(),et:S.et,docs,txt});
+await DL.save({filename:"lisa-mes-documents-"+new Date().toISOString().slice(0,10)+".json",data:new Blob([out],{type:"application/json"})});
+try{localStorage.setItem("lisa_edbk",new Date().toISOString())}catch(e){}
+o.textContent="✅ Sauvegarde enregistrée ("+Object.keys(docs).length+" document(s))."+(miss?" "+miss+" fichier(s) introuvable(s) n'ont pas pu être inclus.":"")+" Garde ce fichier dans un endroit sûr (Drive, courriel à toi-même)."}
+catch(e){if(!e||e.code!=="declined")o.textContent="Impossible de sauvegarder ("+((e&&(e.code||e.message))||"erreur")+").";else o.textContent=""}}
+async function edRestore(inp){const f=inp.files&&inp.files[0],o=$("edx");inp.value="";if(!f||!o)return;
+try{o.textContent="⏳ Lecture du fichier…";const d=JSON.parse(await f.text());if(!d||d.app!=="Lisa-etudiant"||!d.et)throw new Error("Ce fichier n'est pas une sauvegarde de documents Lisa.");
+const k=Object.keys(d.docs||{});if(!confirm("Restaurer "+k.length+" document(s) et tes notes de cette sauvegarde ("+(d.at||"").slice(0,10)+") ? Les documents et notes actuels du mode étudiant seront remplacés."))return;
+let n=0;for(const id of k){n++;o.textContent="⏳ Restauration "+n+" sur "+k.length+"…";const x=d.docs[id];await IDB.set("etdoc:"+id,new File([edBlob(x.b64,x.type)],x.name||"document",{type:x.type||""}))}
+for(const id of Object.keys(d.txt||{}))await IDB.set("etxt:"+id,d.txt[id]);
+const keep={mode:S.et.mode,only:S.et.only};S.et=Object.assign({mode:"",suivi:{},notes:{},docs:{}},d.et,keep.mode?{mode:keep.mode}:{},keep.only?{only:keep.only}:{});etSave();render();const o2=$("edx");if(o2)o2.textContent="✅ Restauré : "+k.length+" document(s)."}
+catch(e){o.textContent="Impossible de restaurer : "+((e&&e.message)||"fichier illisible")}}
+function edCard(){const n=Object.values(S.et.docs||{}).reduce((a,L)=>a+(L||[]).length,0),b=edInfo(),old=!b||(Date.now()-new Date(b))>14*864e5;
+return `<div class="card"><b>💾 Sauvegarde de mes documents</b><div class="mut">Tes recueils et tes notes restent sur cet appareil seulement. Si tu réinstalles l'appli ou effaces les données du navigateur, ils disparaissent. Fais une sauvegarde de temps en temps.</div>${n&&old?`<div style="color:var(--red);margin-top:6px"><b>${b?"Dernière sauvegarde : "+new Date(b).toLocaleDateString("fr-CA"):"Aucune sauvegarde encore."}</b> Pense à en faire une.</div>`:b?`<div class="mut" style="margin-top:6px">Dernière sauvegarde : ${new Date(b).toLocaleDateString("fr-CA")}</div>`:""}<div class="row" style="margin-top:8px"><button type="button" onclick="edSave()">💾 Sauvegarder (${n} document${n>1?"s":""})</button><label style="cursor:pointer;display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid var(--line)">📥 Restaurer<input type="file" accept=".json,application/json" style="display:none" onchange="edRestore(this)"></label></div><div id="edx" class="mut" role="status" aria-live="polite" style="margin-top:6px"></div></div>`}
+
 function confChecks3(i){const z=(i.zl||[]).filter(x=>!x.photo&&!(x.noPhoto&&(x.note||"").trim()));const sg=Array.isArray(i.attZ)?i.attZ.length:0;return[{ok:!!i.sig,t:"Attestation d'exécution signée par le client (bon de fin de visite)",h:"Fais signer le client dans « Révision finale »."},{ok:!i.sig||(i.zl||[]).length<=sg,t:"Aucune zone non inspectée ajoutée après la signature de l'attestation",h:"Des zones ont été ajoutées depuis la signature : fais signer de nouveau (efface la signature, puis signe)."},{ok:!z.length,t:"Chaque zone non inspectée a une photo preuve (ou une justification écrite)",h:"À corriger : "+z.map(x=>x.zone).join(", ")+". Ouvre le Bouclier juridique et ajoute la photo, ou précise pourquoi elle est impossible."}]}
 function confChecks(i){return confChecks0(i).concat(confChecks2(i)).concat(confChecks3(i))}
 function confChecks2(i){const e=i.ent||{},c=i.client||{},d=i.docs||{},R=i.rr||{},ok=k=>R[k]&&R[k].st&&R[k].st!=="Non vérifié",el=i.elec||{};
@@ -2456,7 +2479,7 @@ IDB.open().then(async d=>{IDB.db=d;const pf=await IDB.get("prof");if(pf)S.prof=p
 /* ===== Version installable (hors Claude) ===== */
 if(!(window.claude&&claude.use)){DL={save:async({filename,data})=>{const t=/\.json$/i.test(filename)?"application/json":/\.html?$/i.test(filename)?"text/html":"text/plain";const b=data instanceof Blob?data:new Blob([data],{type:t});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}}}
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
-window.LISA_V="11";
+window.LISA_V="12";
 function lisaToast(m,btn){let t=document.getElementById("lisat");if(!t){t=document.createElement("div");t.id="lisat";t.setAttribute("role","status");t.style.cssText="position:fixed;left:12px;right:12px;bottom:76px;z-index:99999;background:#0f4c5c;color:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 4px 16px rgba(0,0,0,.3);display:flex;gap:10px;align-items:center;justify-content:space-between";document.body.appendChild(t)}t.innerHTML="";const s=document.createElement("span");s.textContent=m;t.appendChild(s);if(btn){const b=document.createElement("button");b.textContent=btn[0];b.style.cssText="flex:none;background:#fff;color:#0f4c5c;border:0;border-radius:8px;padding:8px 12px;font-weight:700";b.onclick=btn[1];t.appendChild(b)}else setTimeout(()=>{try{t.remove()}catch(e){}},5000)}
 async function lisaUpdate(){const o=document.getElementById("luo"),say=m=>{if(o)o.textContent=m;lisaToast(m)};
 try{if(!("serviceWorker" in navigator)){location.reload();return}
