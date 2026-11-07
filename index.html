@@ -76,7 +76,7 @@ function newInsp(){const i={id:Date.now(),client:{},sections:{},zones:"",modifs:
 function open(id,v){S.cur=id;go(v)}
 function bind(obj,k){return e=>{obj[k]=e.target.value;save()}}
 function inp(l,o,k,t){const id="f"+Math.random().toString(36).slice(2);setTimeout(()=>{const el=$(id);if(el)el.oninput=bind(o,k)},0);return `<label for="${id}">${l}</label><input id="${id}" type="${t||"text"}" value="${esc(o[k])}">`}
-function render(){bkTrack();if(NT.on)ntStop();if(typeof DICT!=="undefined"&&DICT)dictStop();AN=null;PH=[];MES=[];const a=$("app");a.innerHTML=({home,regime,lexique,fiche,tour,section,review,report,old,bouclier,outils,pedago,risques,entente,profil,trad,facture,factures,agenda,clients,conformite,messages,calc,notes,scan,kit,cours,refs,comp,bul,inv,qcm,apropos,constr,livre})[S.view]();tbar();bkBtn()}
+function render(){bkTrack();if(NT.on)ntStop();if(typeof DICT!=="undefined"&&DICT)dictStop();AN=null;PH=[];MES=[];const a=$("app");a.innerHTML=({home,regime,lexique,fiche,tour,section,review,report,old,bouclier,outils,pedago,risques,entente,profil,trad,facture,factures,agenda,clients,conformite,messages,calc,notes,scan,kit,cours,refs,comp,bul,inv,qcm,apropos,constr,livre,annot})[S.view]();tbar();bkBtn();aiPost()}
 function homeInsp(){const n=S.list.filter(i=>i.status==="en cours").length;return `<h1>Lisa</h1><div class="mut">Inspection en bâtiment · Québec · Standard C.E.I.</div>
 <button class="big" onclick="newInsp()">✨ Nouvelle inspection</button>
 <button class="big alt" onclick="S.cur=(S.list.find(i=>i.status==='en cours')||{}).id;S.cur?go('tour'):alert('Aucune inspection en cours.')">🔄 Inspection en cours <span class="pill">${n}</span></button>
@@ -269,8 +269,8 @@ if(P.sceau){const p=pp(P.sceau);if(p)d.addImage(P.sceau,p.fileType,W-M-35,y0,35,
 tx("Document généré le "+new Date().toLocaleString("fr-CA"),{i:1,s:8});
 const n=d.getNumberOfPages(),lg=P.logo?pp(P.logo):null;for(let p=1;p<=n;p++){d.setPage(p);d.setFont("helvetica","normal");d.setFontSize(8);d.setTextColor(90,90,90);d.text(T("Dossier "+(c.dossier||"-")+"  |  Requérants : "+(c.nom||"")+"  |  Inspection du "+(c.date||"")),M,M-4);d.setDrawColor(0,0,0);d.line(M,M-2,W-M,M-2);if(lg&&p>1){const h=9;d.addImage(P.logo,lg.fileType,W-M-Math.min(h*lg.width/lg.height,30),M-11,Math.min(h*lg.width/lg.height,30),h)}d.text("Page "+p+" sur "+n,W/2,H-10,{align:"center"})}
 return d.output("blob")}
-let AI=null;
-try{if(window.claude&&claude.use)claude.use("sample").then(s=>{AI=s},()=>{})}catch(e){}
+let AI=null,AI0=null;
+try{if(window.claude&&claude.use)claude.use("sample").then(s=>{AI0=s;AI=aiOff()?null:s},()=>{})}catch(e){}
 const AIE={not_granted:"Tu n'as pas autorisé l'IA pour Lisa.",rate_limited:"Trop de demandes ou limite d'usage atteinte. Réessaie plus tard.",session_expired:"Reconnecte-toi à Claude.",refused:"L'IA a refusé cette demande.",empty_completion:"L'IA n'a rien répondu. Réessaie.",invalid_json:"Réponse illisible. Réessaie.",images_unavailable:"Les photos ne peuvent pas être envoyées à l'IA dans cette vue.",image_rejected:"Photo refusée par l'IA."};
 const aiErr=e=>AIE[e&&e.code]||"L'IA est indisponible pour le moment ("+((e&&e.code)||"erreur")+").";
 const CK={last:""};
@@ -653,7 +653,7 @@ function modePick(){return `<h1>Lisa</h1><div class="mut">Que veux-tu faire?</di
 <button class="big" onclick="etSet('insp')">🏠 Inspection<br><small class="mut">Visites, rapports, clients, agenda, factures</small></button>
 <button class="big alt" onclick="etSet('etu')">🎓 Étudiant<br><small class="mut">Mes cours du C.E.I., mes documents et mes notes</small></button>
 <div class="mut" style="margin-top:10px">Lisa retient ton choix. Tu pourras changer de mode à tout moment depuis l'accueil.</div>`}
-function home(){const m=S.et.mode;if(m==="etu")return homeEtu();if(m==="insp")return `<div class="row" style="justify-content:flex-end"><button class="alt" onclick="S.cp=null;go('comp')">🔍 Comprendre</button><button class="alt" onclick="go('refs')">📚 Références</button><button class="alt" onclick="etSet('etu')">🎓 Mode Étudiant</button></div>`+homeInsp();return modePick()}
+function home(){const m=S.et.mode;if(m==="etu")return homeEtu();if(m==="insp")return `<div class="row" style="justify-content:flex-end"><button class="alt" onclick="S.cp=null;go('comp')">🔍 Comprendre</button><button class="alt" onclick="go('refs')">📚 Références</button><button class="alt" onclick="go('annot')">🖍️ Annoter</button><button class="alt" onclick="etSet('etu')">🎓 Mode Étudiant</button></div>`+homeInsp();return modePick()}
 function homeEtu(){const tile=c=>{const p=etProg(c),av=c.st!=="En cours";return `<button class="tile" style="${av?"opacity:.8":""}" onclick="S.cr='${c.id}';go('cours')"><span>${c.ic}</span>${esc(c.nom)}<small>${esc(c.code)}${c.ch.length?" · "+p.v+"/"+p.n+" chapitres vus":av?" · à venir":""}</small></button>`};
 const tot=ETU_COURS.reduce((a,c)=>{const p=etProg(c);return{n:a.n+p.n,v:a.v+p.v}},{n:0,v:0}),pc=tot.n?Math.round(tot.v*100/tot.n):0;
 const ses=n=>`<div class="grid2">${ETU_COURS.filter(c=>c.ses===n).map(tile).join("")}</div>`;
@@ -663,6 +663,7 @@ ${S.et.hi?"":`<div class="card" style="border-color:var(--pri)"><b>👋 Commence
 <div class="card"><b>Ma progression</b> <span class="mut">${tot.v}/${tot.n} chapitres vus (cours dont le plan est ajouté)</span><div style="background:var(--line);border-radius:99px;height:10px;margin-top:6px"><div style="background:var(--pri);height:10px;border-radius:99px;width:${pc}%"></div></div></div>
 <button class="big alt" onclick="S.cs&&(S.cs.st=null);go('constr')">🏗️ Construction<br><small class="mut">De la terre à la clé : comment on construit une maison, étape par étape</small></button>
 <button class="big alt" onclick="S.lv&&(S.lv.p=null);go('livre')">📖 Ma maison, le livre<br><small class="mut">34 pages, un dessin qui se construit : de la feuille de plans à la clé</small></button>
+<button class="big alt" onclick="go('annot')">🖍️ Annoter une photo<br><small class="mut">Cercles, flèches et texte sur ta photo (sans IA possible)</small></button>
 <div class="grid2">${T("🏛️","Quel code ?","régime et partie du Code","openRg('etu')")}${T("📝","Devoirs QCM","pièges, fiches, vérification","S.qc&&(S.qc.tab='q');go('qcm')")}${T("🔍","Comprendre","pourquoi ça arrive","S.cp=null;go('comp')")}${T("📚","Références","Code, guides, recherche","go('refs')")}${T("📊","Mes notes","suivi et seuils de réussite","go('bul')")}${T("📋","Mes documents","ce qu'il me manque","go('inv')")}</div>
 <h2>Session 1 · en cours</h2>${ses(1)}<h2>Session 2</h2>${ses(2)}<h2>Session 3</h2>${ses(3)}
 <div class="mut" style="margin-top:12px">Touche un cours pour voir son plan, cocher les chapitres vus, écrire tes notes et ranger tes documents. Tout reste sur ton appareil.</div>
@@ -743,10 +744,10 @@ function etCtx(c,k){const h=k>=0?c.ch[k]:null;return "Cours : "+c.nom+" ("+c.cod
 function etPages(pk){const mu=new Set(pk.map(p=>p.doc)).size>1;return pk.length?"Extraits des documents de l'étudiant (numéro de page du PDF, ou de partie du fichier Word) :\n"+pk.map(p=>"["+(mu?etShort(p.doc)+" — ":"")+"p. "+p.page+"]\n"+p.text).join("\n\n"):"Aucun extrait du recueil n'est disponible : réponds avec des connaissances générales et dis-le clairement."}
 const ETRULES="Consignes : écris en français simple et clair, comme un tuteur patient, avec un exemple concret d'inspection quand c'est utile. Reformule avec tes mots, sans recopier de longs passages. Appuie-toi d'abord sur les extraits et indique les pages (p. N). Si les extraits ne répondent pas, dis-le. N'invente aucun numéro d'article, chiffre ni exigence de code absent des extraits : invite plutôt à vérifier dans le recueil ou auprès du professeur. Pas de titres ni de tableaux.";
 function etNeed(){return true}
-function etAiNote(){return AI?"":`<div class="mut" style="background:var(--bg);border-radius:8px;padding:8px 10px;margin-bottom:8px">ℹ️ Dans cette version, l'IA n'est pas intégrée : les boutons <b>copient la question</b> pour que tu la colles dans ton IA (Claude, ChatGPT, Gemini…). Reviens ensuite écrire ta réponse avec tes mots. Pour l'IA intégrée, utilise la version claude.ai (demande le lien à Mathieu).</div>`}
+function etAiNote(){return AI||aiOff()?"":`<div class="mut" style="background:var(--bg);border-radius:8px;padding:8px 10px;margin-bottom:8px">ℹ️ Dans cette version, l'IA n'est pas intégrée : les boutons <b>copient la question</b> pour que tu la colles dans ton IA (Claude, ChatGPT, Gemini…). Reviens ensuite écrire ta réponse avec tes mots. Pour l'IA intégrée, utilise la version claude.ai (demande le lien à Mathieu).</div>`}
 async function etCopy(p){let ok=false;try{await navigator.clipboard.writeText(p);ok=true}catch(e){try{const t=document.createElement("textarea");t.value=p;t.style.position="fixed";t.style.opacity="0";document.body.appendChild(t);t.select();ok=document.execCommand("copy");t.remove()}catch(e2){}}
 return {copied:true,text:ok?"📋 Question copiée ! Ouvre ton IA (Claude, ChatGPT, Gemini…), colle-la (appui long → Coller) et envoie. Elle contient aussi des extraits de tes recueils. Reviens ensuite ici écrire ta réponse avec tes mots : ce qui vient d'une IA doit être reformulé ou cité (Guide d'études du C.E.I.).":"⚠ La copie automatique a échoué. Sélectionne et copie ce texte, puis colle-le dans ton IA :\n\n"+p}}
-function etAI(p,o){return AI?AI(p,o):etCopy(p)}
+function etAI(p,o){return aiOff()?Promise.resolve({copied:true,text:"Le mode « Sans IA » est activé (interrupteur en haut de l'accueil)."}):AI?AI(p,o):etCopy(p)}
 function etQ(f,v){const q=S.etq;q[f]=v}
 async function etAsk(cid,mode){const c=etC(cid),q=S.etq,o=$("etout");if(!c||!o||!etNeed())return;const k=q.k===undefined?-1:q.k,txt=(q.q||"").trim();
 if(mode!=="quiz"&&mode!=="rapport"&&!txt){o.textContent="Écris d'abord ta question ou colle le passage.";return}
@@ -2037,6 +2038,77 @@ ${LVEND.map(c=>`<div class="card"><b>${esc(c[0])}</b><ol style="margin:6px 0 0;p
 <textarea rows="8" aria-label="Raconte ta maison" placeholder="Écris ici avec tes propres mots…" oninput="lvNote('_fin',this.value)">${esc(note)}</textarea><div class="mut" style="font-size:12px;margin-top:6px">Ton texte reste sur ton appareil.</div></div>
 <div class="row" style="margin-top:10px"><button class="alt" onclick="lvGo(${N})">← Page ${N}</button><button class="alt" onclick="S.lv.p=null;go('livre')">☰ Table des matières</button></div>`}
 function livre(){const C=S.lv||(S.lv={p:null}),n=C.p,N=LVB.length;if(n>=1&&n<=N)return lvPage(n);if(n===N+1)return lvFin();return lvToc()}
+/* ===== Avec / Sans IA + annotation de photo ===== */
+function aiPref(){let v="";try{v=localStorage.getItem("lisa_ai")||""}catch(e){}return v||window.__lisaAi||""}
+function aiOff(){return aiPref()==="off"}
+function aiSet(v){window.__lisaAi=v;try{localStorage.setItem("lisa_ai",v)}catch(e){}AI=v==="off"?null:AI0;const q=$("aiq");if(q)q.remove();render()}
+const AI_RX=/\b(lvAsk|etxAI|etqAI|etRefAsk|etAsk|csAsk|compAsk|etExp|etqGen|etTutorFrom|aiPolish|aiPhoto|aiReview|aiLook|aiSum|etqPhoto|qcmf)\b/;
+function aiSwitch(){const off=aiOff();return `<div id="aisw" style="margin-bottom:10px"><div class="row" style="align-items:center;gap:6px"><span class="mut">IA :</span><button class="${off?"alt":""}" type="button" aria-pressed="${!off}" onclick="aiSet('on')">🤖 Avec IA</button><button class="${off?"":"alt"}" type="button" aria-pressed="${off}" onclick="aiSet('off')">🙂 Sans IA</button></div>${off?`<div class="mut" style="margin-top:4px">Sans IA : les boutons d'aide de l'IA sont cachés. Tout le reste fonctionne pareil.</div>`:""}</div>`}
+function aiAskBox(){const d=document.createElement("div");d.id="aiq";d.setAttribute("role","dialog");d.setAttribute("aria-modal","true");d.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto";
+d.innerHTML=`<div class="card" style="max-width:420px;margin:0"><h2 style="margin-top:0">Veux-tu utiliser l'IA ?</h2><p><b>Avec IA</b> : Lisa peut vérifier ton texte, expliquer autrement, te poser des questions et donner un 2e regard sur une photo (dans la version Claude). Dans l'appli installée, elle te laisse copier ta question pour la coller dans l'IA de ton choix.</p><p><b>Sans IA</b> : tous ces boutons disparaissent. Le livre, la Construction, les fiches, la vérification de mots-clés, les constats et l'annotation de photos marchent pareil.</p><button class="big" type="button" onclick="aiSet('on')">🤖 Avec IA</button><button class="big alt" type="button" style="margin-top:8px" onclick="aiSet('off')">🙂 Sans IA</button><div class="mut" style="margin-top:8px">Tu peux changer d'avis à tout moment en haut de l'accueil.</div></div>`;document.body.appendChild(d)}
+function aiHide(){if(!aiOff())return;const a=$("app");if(!a)return;a.querySelectorAll("[onclick],[onchange]").forEach(e=>{const t=(e.getAttribute("onclick")||"")+" "+(e.getAttribute("onchange")||"");if(AI_RX.test(t))e.style.display="none"})}
+let AI_MO=null;
+function aiPost(){const a=$("app");if(!a)return;if(!aiPref()&&!$("aiq"))aiAskBox();
+if(S.view==="home"&&!$("aisw"))a.insertAdjacentHTML("afterbegin",aiSwitch());
+aiHide();if(!AI_MO&&window.MutationObserver){AI_MO=new MutationObserver(()=>aiHide());AI_MO.observe(a,{childList:true,subtree:true})}}
+
+/* ----- Annoter une photo (à la main + 2e regard de l'IA) ----- */
+function annot(){return `<button class="alt" onclick="go('home')">← Accueil</button><h2>🖍️ Annoter une photo</h2><div class="mut">Prends ou choisis une photo, puis encercle, mets une flèche ou écris dessus. Ça marche sans internet et sans IA. La photo reste sur ton appareil.</div>
+<div class="row" style="margin-top:10px"><label class="btn" style="cursor:pointer;display:inline-block;padding:10px 14px;border-radius:10px;background:var(--pri);color:#fff">📷 Prendre une photo<input type="file" accept="image/*" capture="environment" style="display:none" onchange="loadAN(this.files[0],1)"></label><label style="cursor:pointer;display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid var(--line)">🖼️ Choisir dans la galerie<input type="file" accept="image/*" style="display:none" onchange="loadAN(this.files[0],1)"></label></div><div id="anbox"></div>
+<div class="mut" style="margin-top:12px">Rappel : une annotation montre <i>où</i> regarder. Le constat (identification, anomalie, conséquence, recommandation) reste écrit par toi, dans tes mots.</div>`}
+const anClamp=(v,a,b)=>Math.min(b,Math.max(a,+v));
+function anKeep(n){if(AN&&AN.keep)AN.keep(n)}
+function anDel(n){if(AN&&AN.del)AN.del(n)}
+function anAll(k){if(!AN)return;if(k)while(AN.props.length)AN.keep(0);else{AN.props.length=0;AN.plist()}}
+async function anSave(){const A=AN;if(!A)return;const o=$("anai");if(!DL){o.textContent="L'enregistrement n'est pas disponible ici.";return}
+A.cv.toBlob(async b=>{try{await DL.save({filename:"photo-annotee-"+new Date().toISOString().slice(0,10)+".jpg",data:b});o.textContent="✅ Image enregistrée."}catch(e){if(!e||e.code!=="declined")o.textContent="Impossible d'enregistrer ("+((e&&e.code)||"erreur")+")."}},"image/jpeg",.9)}
+function loadAN(f,sa){if(!f)return;const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{
+const k=Math.min(1,800/im.width),w=Math.round(im.width*k),h=Math.round(im.height*k),canAI=!!AI&&!aiOff();
+const TL=[["pen","✏️ Crayon"],["circle","⭕ Cercle"],["arrow","↗ Flèche"],["text","🔤 Texte"]];
+$("anbox").innerHTML=`<div class="mut" style="margin:8px 0 4px">Choisis un outil, puis dessine sur la photo avec le doigt.</div>
+<div class="row" id="antl" style="margin-bottom:6px">${TL.map(t=>`<button class="${t[0]==="pen"?"":"alt"}" type="button" data-t="${t[0]}">${t[1]}</button>`).join("")}<button class="alt" type="button" data-t="move" id="anmv" style="display:none">✋ Déplacer</button></div>
+<div id="antxr" style="display:none;margin-bottom:6px"><input id="antx" placeholder="Texte à écrire, puis touche la photo" maxlength="40"></div>
+<div style="position:relative;line-height:0"><canvas id="an" style="touch-action:none;width:100%;height:auto;display:block"></canvas><canvas id="an2" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none"></canvas></div>
+<div class="row" style="margin-top:6px"><button class="alt" id="cl" type="button">Couleur : rouge</button><button class="alt" id="un" type="button">↩ Annuler</button><button id="kp" type="button">${sa?"💾 Enregistrer l'image":"✔ Garder cette photo"}</button></div>
+${canAI?`<div class="row" style="margin-top:8px"><button class="alt" type="button" onclick="aiLook()">🔎 2e regard de l'IA</button></div><div class="mut" style="margin-top:4px">L'IA propose des cercles <b>« à confirmer »</b> en orange pointillé. Elle peut se tromper et ses positions sont approximatives : tu gardes, déplaces ou retires chacun. Elle décrit seulement ce qui est visible, jamais les causes. La photo est envoyée à Claude.</div>`:""}
+<div id="anai" class="mut" role="status" aria-live="polite" style="margin-top:6px"></div><div id="anpl"></div>`;
+const cv=$("an"),x=cv.getContext("2d"),ov=$("an2");cv.width=w;cv.height=h;ov.width=w;ov.height=h;x.drawImage(im,0,0,w,h);
+const bc=document.createElement("canvas");bc.width=w;bc.height=h;bc.getContext("2d").drawImage(im,0,0,w,h);
+const A=AN={cv,bc,props:[],kept:[],kc:0,sa:!!sa,nid:0};
+const snap=()=>{const d=x.getImageData(0,0,w,h);d.kn=A.kept.length;d.kc=A.kc;return d};
+const hist=[snap()],cols=[["#e53935","rouge"],["#ffd600","jaune"],["#ffffff","blanc"]];let ci=0,tool="pen",dr=0,sx=0,sy=0,mv=-1;A.push=()=>hist.push(snap());
+x.lineWidth=w/120;x.lineCap="round";x.strokeStyle=cols[0][0];
+const pt=e=>{const b=cv.getBoundingClientRect();return[(e.clientX-b.left)*w/b.width,(e.clientY-b.top)*h/b.height]};
+const ar=(a,b,c,d)=>{x.beginPath();x.moveTo(a,b);x.lineTo(c,d);x.stroke();const t=Math.atan2(d-b,c-a),L=w/16;x.beginPath();x.moveTo(c,d);x.lineTo(c-L*Math.cos(t-.45),d-L*Math.sin(t-.45));x.moveTo(c,d);x.lineTo(c-L*Math.cos(t+.45),d-L*Math.sin(t+.45));x.stroke()};
+const txt=(a,b)=>{const t=($("antx").value||"").trim();if(!t)return false;x.save();x.font="bold "+Math.round(w/16)+"px system-ui,sans-serif";x.textAlign="center";x.lineJoin="round";x.lineWidth=w/90;x.strokeStyle="#000";x.strokeText(t,a,b);x.fillStyle=cols[ci][0];x.fillText(t,a,b);x.restore();return true};
+const drawP=()=>{const o=ov.getContext("2d");o.clearRect(0,0,w,h);A.props.forEach(p=>{o.save();o.setLineDash([w/40,w/60]);o.lineWidth=w/110;o.strokeStyle="#ff9800";o.beginPath();o.arc(p.x*w,p.y*h,p.r*w,0,7);o.stroke();o.setLineDash([]);o.fillStyle="#ff9800";o.font="bold "+Math.round(w/20)+"px system-ui";o.textAlign="center";o.lineWidth=w/150;o.strokeStyle="#000";const tx=p.x*w+p.r*w*.75,ty=p.y*h-p.r*w*.75;o.strokeText(p.id+"?",tx,ty);o.fillText(p.id+"?",tx,ty);o.restore()})};
+A.plist=()=>{drawP();$("anmv").style.display=A.props.length?"":"none";if(!A.props.length&&tool==="move")$("antl").querySelector('[data-t="pen"]').click();
+$("anpl").innerHTML=(A.props.length?`<div class="card" style="margin-top:8px;border-color:#ff9800"><b>Proposé par l'IA · à confirmer</b>${A.props.map((p,n)=>`<div class="row" style="margin-top:6px;align-items:center"><span><b>${p.id}</b> ${esc(p.t||"zone à regarder")}</span><button class="alt" type="button" onclick="anKeep(${n})">✅ Garder</button><button class="alt" type="button" aria-label="Retirer" onclick="anDel(${n})">✕</button></div>`).join("")}<div class="row" style="margin-top:8px"><button class="alt" type="button" onclick="anAll(1)">Tout garder</button><button class="alt" type="button" onclick="anAll(0)">Tout retirer</button></div><div class="mut" style="margin-top:6px">Touche « ✋ Déplacer » puis glisse un cercle orange pour le recentrer. Seuls les cercles gardés sont dessinés sur la photo.</div></div>`:"")
++(A.kept.length?`<div class="card" style="margin-top:8px"><b>Cercles gardés</b><ol style="margin:6px 0;padding-left:20px">${A.kept.map(t=>`<li>${esc(t||"zone")}</li>`).join("")}</ol><div class="mut">Idées pour ta légende : reformule avec tes mots ce que tu vois vraiment.</div></div>`:"")};
+A.keep=n=>{const p=A.props[n];if(!p)return;A.props.splice(n,1);A.kc++;A.kept.push(p.t);x.save();x.strokeStyle="#e53935";x.lineWidth=w/120;x.beginPath();x.arc(p.x*w,p.y*h,p.r*w,0,7);x.stroke();x.fillStyle="#e53935";x.font="bold "+Math.round(w/20)+"px system-ui";x.textAlign="center";x.lineWidth=w/150;x.strokeStyle="#fff";const tx=p.x*w+p.r*w*.75,ty=p.y*h-p.r*w*.75;x.strokeText(String(A.kc),tx,ty);x.fillText(String(A.kc),tx,ty);x.restore();A.push();A.plist()};
+A.del=n=>{A.props.splice(n,1);A.plist()};
+const near=(a,b)=>{let best=-1,bd=1e9;A.props.forEach((p,n)=>{const d=Math.hypot(a-p.x*w,b-p.y*h);if(d<p.r*w+w*.08&&d<bd){bd=d;best=n}});return best};
+$("antl").onclick=e=>{const b=e.target.closest("button[data-t]");if(!b)return;tool=b.dataset.t;[...$("antl").children].forEach(c=>{c.className=c===b?"":"alt"});$("antxr").style.display=tool==="text"?"block":"none";if(tool==="text")$("antx").focus()};
+$("cl").onclick=e=>{ci=(ci+1)%3;x.strokeStyle=cols[ci][0];e.target.textContent="Couleur : "+cols[ci][1]};
+$("un").onclick=()=>{if(hist.length>1){hist.pop();const d=hist.at(-1);x.putImageData(d,0,0);A.kept.length=d.kn;A.kc=d.kc;A.plist()}};
+$("kp").onclick=sa?anSave:keepAN;
+cv.onpointerdown=e=>{const[a,b]=pt(e);if(tool==="text"){if(txt(a,b)){A.push();$("anai").textContent=""}else $("anai").textContent="Écris d'abord le texte dans la case, puis touche la photo.";return}
+if(tool==="move"){mv=near(a,b);if(mv>=0)cv.setPointerCapture(e.pointerId);return}
+dr=1;cv.setPointerCapture(e.pointerId);sx=a;sy=b;x.beginPath();x.moveTo(sx,sy)};
+cv.onpointermove=e=>{const[a,b]=pt(e);if(tool==="move"){if(mv>=0){A.props[mv].x=anClamp(a/w,0,1);A.props[mv].y=anClamp(b/h,0,1);drawP()}return}
+if(!dr)return;dr=2;if(tool==="pen"){x.lineTo(a,b);x.stroke()}else if(tool==="circle"){x.putImageData(hist.at(-1),0,0);x.beginPath();x.ellipse((sx+a)/2,(sy+b)/2,Math.max(1,Math.abs(a-sx)/2),Math.max(1,Math.abs(b-sy)/2),0,0,2*Math.PI);x.stroke()}else if(tool==="arrow"){x.putImageData(hist.at(-1),0,0);ar(sx,sy,a,b)}};
+cv.onpointerup=()=>{mv=-1;if(dr===2)A.push();dr=0};
+};im.src=rd.result};rd.readAsDataURL(f)}
+async function aiLook(){const A=AN,o=$("anai");if(!A||!A.bc)return;
+if(!AI||aiOff()){o.textContent="Le 2e regard de l'IA existe seulement dans la version Claude, en mode « Avec IA ».";return}
+o.textContent="⏳ L'IA regarde la photo (elle est envoyée à Claude)…";
+try{const lim=await AI.limits();if(!lim.images){o.textContent="L'envoi de photos à l'IA n'est pas disponible dans cette vue.";return}
+const r=await AI.json("Tu es un second regard visuel pour un étudiant ou un inspecteur en bâtiment au Québec. Observe la photo et repère au plus 5 zones qui méritent peut-être l'attention (fissure, trace d'humidité, corrosion, matériau détérioré, installation inhabituelle). Ne décris que ce qui est visible : aucune cause, aucun diagnostic, aucune méthode de réparation, aucun coût. Si rien de clair n'est visible, retourne une liste vide. Réponds uniquement avec du JSON de cette forme : {\"zones\":[{\"x\":0.5,\"y\":0.5,\"r\":0.12,\"t\":\"ce qui est visible, 10 mots maximum\"}]} où x et y sont le centre du cercle en proportion de la largeur et de la hauteur de la photo (0,0 = coin haut gauche; 1,1 = coin bas droit) et r est le rayon en proportion de la largeur (entre 0.05 et 0.3).",{images:[d2b(A.bc.toDataURL("image/jpeg",.8))]});
+if(AN!==A)return;
+const L=(Array.isArray(r)?r:r&&r.zones)||[];
+A.props=L.slice(0,5).map(z=>({x:anClamp(z.x,0,1),y:anClamp(z.y,0,1),r:anClamp(z.r||.12,.05,.3),t:String(z.t||"").slice(0,120)})).filter(z=>isFinite(z.x)&&isFinite(z.y)).map(z=>(z.id=String.fromCharCode(65+(A.nid++)%26),z));
+A.plist();
+o.textContent=A.props.length?"Suggestions à confirmer : l'IA peut se tromper et placer les cercles un peu à côté. Vérifie avec ce que tu as vu. Le constat reste écrit par toi.":"L'IA ne voit rien de clair sur cette photo. Ça ne veut pas dire qu'il n'y a rien : fie-toi à ce que tu as vu sur place."}catch(e){o.textContent=aiErr(e)}}
 
 function confChecks3(i){const z=(i.zl||[]).filter(x=>!x.photo&&!(x.noPhoto&&(x.note||"").trim()));const sg=Array.isArray(i.attZ)?i.attZ.length:0;return[{ok:!!i.sig,t:"Attestation d'exécution signée par le client (bon de fin de visite)",h:"Fais signer le client dans « Révision finale »."},{ok:!i.sig||(i.zl||[]).length<=sg,t:"Aucune zone non inspectée ajoutée après la signature de l'attestation",h:"Des zones ont été ajoutées depuis la signature : fais signer de nouveau (efface la signature, puis signe)."},{ok:!z.length,t:"Chaque zone non inspectée a une photo preuve (ou une justification écrite)",h:"À corriger : "+z.map(x=>x.zone).join(", ")+". Ouvre le Bouclier juridique et ajoute la photo, ou précise pourquoi elle est impossible."}]}
 function confChecks(i){return confChecks0(i).concat(confChecks2(i)).concat(confChecks3(i))}
@@ -2350,20 +2422,6 @@ function mesLines(k,t){t=t||(x=>x);return(k.mes||[]).map(m=>t(m.a)+" : "+t(m.v)+
 function mesDraw(){const e=$("mesl");if(e)e.innerHTML=MES.map((m,n)=>`<div class="row" style="margin-top:4px"><span>${esc(m.a)} : <b>${esc(m.v)}</b>${m.l?" ("+esc(m.l)+")":""}</span> <button class="alt" type="button" style="padding:0 8px" aria-label="Retirer la lecture" onclick="mesDel(${n})">✕</button></div>`).join("")}
 function mesAdd(){const a=$("ma").value,o=$("mo").value.trim(),v=$("mv").value.trim(),l=$("ml").value.trim();if(!v){$("mesl").innerHTML='<span style="color:var(--red)">Entre la valeur lue.</span>';return}MES.push({a:(a==="Autre appareil"&&o)?o:a,v,l});$("mo").value="";$("mv").value="";$("ml").value="";mesDraw()}
 function mesDel(n){MES.splice(n,1);mesDraw()}
-function loadAN(f){if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,800/im.width),w=Math.round(im.width*k),h=Math.round(im.height*k);
-$("anbox").innerHTML='<div class="mut" style="margin:8px 0 4px">Dessine sur la photo pour marquer le problème.</div><canvas id="an" style="touch-action:none"></canvas><div class="row" style="margin-top:6px"><button class="alt" id="tl">✏️ Crayon</button><button class="alt" id="cl">Couleur : rouge</button><button class="alt" id="un">Annuler</button><button id="kp">✔ Garder cette photo</button></div>';
-const cv=$("an"),x=cv.getContext("2d");cv.width=w;cv.height=h;x.drawImage(im,0,0,w,h);AN={cv};
-const hist=[x.getImageData(0,0,w,h)],cols=[["#e53935","rouge"],["#ffd600","jaune"],["#ffffff","blanc"]];let ci=0,tool="pen",dr=0,sx=0,sy=0;
-x.lineWidth=w/120;x.lineCap="round";x.strokeStyle=cols[0][0];
-const pt=e=>{const b=cv.getBoundingClientRect();return[(e.clientX-b.left)*w/b.width,(e.clientY-b.top)*h/b.height]};
-const ar=(a,b,c,d)=>{x.beginPath();x.moveTo(a,b);x.lineTo(c,d);x.stroke();const t=Math.atan2(d-b,c-a),L=w/16;x.beginPath();x.moveTo(c,d);x.lineTo(c-L*Math.cos(t-.45),d-L*Math.sin(t-.45));x.moveTo(c,d);x.lineTo(c-L*Math.cos(t+.45),d-L*Math.sin(t+.45));x.stroke()};
-$("tl").onclick=e=>{tool=tool==="pen"?"arrow":tool==="arrow"?"circle":"pen";e.target.textContent=tool==="pen"?"✏️ Crayon":tool==="arrow"?"↗ Flèche":"⭕ Cercle"};
-$("cl").onclick=e=>{ci=(ci+1)%3;x.strokeStyle=cols[ci][0];e.target.textContent="Couleur : "+cols[ci][1]};
-$("un").onclick=()=>{if(hist.length>1){hist.pop();x.putImageData(hist.at(-1),0,0)}};$("kp").onclick=keepAN;
-cv.onpointerdown=e=>{dr=1;cv.setPointerCapture(e.pointerId);[sx,sy]=pt(e);x.beginPath();x.moveTo(sx,sy)};
-cv.onpointermove=e=>{if(!dr)return;dr=2;const[a,b]=pt(e);if(tool==="pen"){x.lineTo(a,b);x.stroke()}else if(tool==="circle"){x.putImageData(hist.at(-1),0,0);x.beginPath();x.ellipse((sx+a)/2,(sy+b)/2,Math.max(1,Math.abs(a-sx)/2),Math.max(1,Math.abs(b-sy)/2),0,0,2*Math.PI);x.stroke()}else{x.putImageData(hist.at(-1),0,0);ar(sx,sy,a,b)}};
-cv.onpointerup=()=>{if(dr===2)hist.push(x.getImageData(0,0,w,h));dr=0};
-};im.src=r.result};r.readAsDataURL(f)}
 let H3=null;
 function init3d(i){const cv=$("h3d");if(!cv)return;
 if(!window.THREE){cv.outerHTML='<p class="mut" style="padding:12px">La maison 3D n\'a pas pu se charger. Vérifie ta connexion.</p>';return}
@@ -2398,7 +2456,7 @@ IDB.open().then(async d=>{IDB.db=d;const pf=await IDB.get("prof");if(pf)S.prof=p
 /* ===== Version installable (hors Claude) ===== */
 if(!(window.claude&&claude.use)){DL={save:async({filename,data})=>{const t=/\.json$/i.test(filename)?"application/json":/\.html?$/i.test(filename)?"text/html":"text/plain";const b=data instanceof Blob?data:new Blob([data],{type:t});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}}}
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
-window.LISA_V="10";
+window.LISA_V="11";
 function lisaToast(m,btn){let t=document.getElementById("lisat");if(!t){t=document.createElement("div");t.id="lisat";t.setAttribute("role","status");t.style.cssText="position:fixed;left:12px;right:12px;bottom:76px;z-index:99999;background:#0f4c5c;color:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 4px 16px rgba(0,0,0,.3);display:flex;gap:10px;align-items:center;justify-content:space-between";document.body.appendChild(t)}t.innerHTML="";const s=document.createElement("span");s.textContent=m;t.appendChild(s);if(btn){const b=document.createElement("button");b.textContent=btn[0];b.style.cssText="flex:none;background:#fff;color:#0f4c5c;border:0;border-radius:8px;padding:8px 12px;font-weight:700";b.onclick=btn[1];t.appendChild(b)}else setTimeout(()=>{try{t.remove()}catch(e){}},5000)}
 async function lisaUpdate(){const o=document.getElementById("luo"),say=m=>{if(o)o.textContent=m;lisaToast(m)};
 try{if(!("serviceWorker" in navigator)){location.reload();return}
