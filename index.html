@@ -106,7 +106,7 @@ function newInsp(){const i={id:Date.now(),client:{},sections:{},zones:"",modifs:
 function openInsp(id,v){S.cur=id;go(v)}
 function bind(obj,k){return e=>{obj[k]=e.target.value;save()}}
 function inp(l,o,k,t){const id="f"+Math.random().toString(36).slice(2);setTimeout(()=>{const el=$(id);if(el)el.oninput=bind(o,k)},0);return `<label for="${id}">${l}</label><input id="${id}" type="${t||"text"}" value="${esc(o[k])}">`}
-function render(){bkTrack();if(NT.on)ntStop();if(typeof DICT!=="undefined"&&DICT)dictStop();AN=null;PH=[];MES=[];const a=$("app");a.innerHTML=({home,regime,lexique,fiche,tour,section,review,report,old,bouclier,outils,pedago,risques,entente,profil,trad,facture,factures,agenda,clients,conformite,messages,calc,notes,scan,kit,cours,refs,comp,bul,inv,qcm,apropos,constr,livre,annot,atelier,terrain,ofiches,bib,qa,mcours,mcfin})[S.view]();tbar();bkBtn();aiPost()}
+function render(){bkTrack();if(NT.on)ntStop();if(typeof DICT!=="undefined"&&DICT)dictStop();AN=null;PH=[];MES=[];const a=$("app");a.innerHTML=({home,regime,lexique,fiche,tour,section,review,report,old,bouclier,outils,pedago,risques,entente,profil,trad,facture,factures,agenda,clients,conformite,messages,calc,notes,scan,kit,cours,refs,comp,bul,inv,qcm,apropos,constr,livre,annot,atelier,terrain,ofiches,bib,qa,mcours,mcfin,jeu})[S.view]();tbar();bkBtn();aiPost()}
 function homeInsp(){const n=S.list.filter(i=>i.status==="en cours").length;return `<h1>Lisa</h1><div class="mut">Inspection en bâtiment · Québec · Outil personnel non officiel</div>
 <button class="big" onclick="newInsp()">✨ Nouvelle inspection</button>
 <button class="big alt" onclick="S.cur=(S.list.find(i=>i.status==='en cours')||{}).id;S.cur?go('tour'):alert('Aucune inspection en cours.')">🔄 Inspection en cours <span class="pill">${n}</span></button>
@@ -1545,6 +1545,65 @@ const ts=q.split(/\s+/).filter(Boolean);const hits=[];ETC.forEach(a=>a.subs.forE
 o.innerHTML=hits.length?`<div class="mut">${hits.length} sujet${hits.length>1?"s":""} trouvé${hits.length>1?"s":""}</div>`+hits.map(([a,b])=>`<div class="mut" style="margin-top:8px">${a.ic} ${esc(a.t)}</div>`+csSub(a,b)).join(""):`<div class="mut">Aucun sujet ne correspond. Essaie un autre mot (ex. : drain, solin, linteau).</div>`}
 function csQ(v){S.cs.q=v;csRes();const l=$("cslist");if(l)l.style.display=v.trim()?"none":""}
 function csOpen(id){S.cs.st=id;S.cs.open=null;go('constr');window.scrollTo(0,0)}
+/* ===== Mode jeu : Chantier (bâtir la maison étape par étape, contenu tiré de ETC) ===== */
+function jgSt(){return S.et.jeu||(S.et.jeu={d:{}})}
+function jgMix(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function jgScene(n){const K=9,OX=180,OY=64,P=(x,y,z)=>[(OX+(x-y)*K*.866).toFixed(1),(OY+(x+y)*K*.5-(z||0)*K).toFixed(1)],
+pl=(pts,f,s,o)=>`<polygon points="${pts.map(p=>p.join(",")).join(" ")}" fill="${f}" stroke="${s||"#0006"}" stroke-width="1" stroke-linejoin="round"${o?` opacity="${o}"`:""}/>`,
+ln=(a,b,c,w)=>`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${c}" stroke-width="${w||1.5}" stroke-linecap="round"/>`,
+box=(x,y,z,w,d,h,ft,fl,fr)=>pl([P(x,y,z+h),P(x+w,y,z+h),P(x+w,y+d,z+h),P(x,y+d,z+h)],ft)+pl([P(x,y+d,z+h),P(x+w,y+d,z+h),P(x+w,y+d,z),P(x,y+d,z)],fl)+pl([P(x+w,y,z+h),P(x+w,y+d,z+h),P(x+w,y+d,z),P(x+w,y,z)],fr);
+const X=4,Y=5,W=12,D=8;let o="";
+o+=pl([P(-1,-1),P(21,-1),P(21,19),P(-1,19)],n>=10?"#7cb66a":"#b9a37a","#0003");
+if(n>=10){o+=pl([P(16.5,7),P(21,7),P(21,11),P(16.5,11)],"#8d8d8d","#0003")+pl([P(8,13),P(10,13),P(10,19),P(8,19)],"#c9c2b2","#0003");
+[[1,2],[1,15],[18,16]].forEach(t=>{o+=ln(P(t[0],t[1],0),P(t[0],t[1],2),"#6b4a2b",2.5)+`<circle cx="${P(t[0],t[1],3)[0]}" cy="${P(t[0],t[1],3)[1]}" r="11" fill="#3f8f4a" stroke="#0004"/>`})}
+if(n===0){[[X,Y],[X+W,Y],[X+W,Y+D],[X,Y+D]].forEach(c=>{o+=ln(P(c[0],c[1],0),P(c[0],c[1],1.2),"#c0392b",2.5)});
+o+=ln(P(X,Y,1),P(X+W,Y,1),"#e08a00",1)+ln(P(X+W,Y,1),P(X+W,Y+D,1),"#e08a00",1)+ln(P(X+W,Y+D,1),P(X,Y+D,1),"#e08a00",1)+ln(P(X,Y+D,1),P(X,Y,1),"#e08a00",1)}
+if(n>=1&&n<2)o+=pl([P(X-1,Y-1),P(X+W+1,Y-1),P(X+W+1,Y+D+1),P(X-1,Y+D+1)],"#8a7453","#0004");
+if(n>=2)o+=box(X,Y,0,W,D,1,"#c9c9c9","#a9a9a9","#939393");
+if(n>=3)o+=box(X,Y,1,W,D,.4,"#d8b47a","#b98f55","#a57c45");
+const Z=1.4,H=4.2;
+if(n>=4&&n<6){for(let i=0;i<=W;i+=1.5)o+=ln(P(X+i,Y+D,Z),P(X+i,Y+D,Z+H),"#c79a5b",2);for(let j=0;j<=D;j+=1.6)o+=ln(P(X+W,Y+j,Z),P(X+W,Y+j,Z+H),"#b3874b",2);
+o+=ln(P(X,Y+D,Z+H),P(X+W,Y+D,Z+H),"#c79a5b",2.5)+ln(P(X+W,Y,Z+H),P(X+W,Y+D,Z+H),"#b3874b",2.5)+ln(P(X,Y,Z+H),P(X+W,Y,Z+H),"#c79a5b",1.5)+ln(P(X,Y,Z+H),P(X,Y+D,Z+H),"#c79a5b",1.5)+ln(P(X,Y,Z),P(X,Y,Z+H),"#c79a5b",1.5)}
+if(n>=6){const wl=n>=9?"#e9dcc3":n>=7?"#f2b8c6":"#d9c08f",wr=n>=9?"#cdbf9f":n>=7?"#dd9fb0":"#bfa672";
+o+=pl([P(X,Y+D,Z+H),P(X+W,Y+D,Z+H),P(X+W,Y+D,Z),P(X,Y+D,Z)],wl)+pl([P(X+W,Y,Z+H),P(X+W,Y+D,Z+H),P(X+W,Y+D,Z),P(X+W,Y,Z)],wr);
+const gl=n>=9?"#ffe9a6":"#9fd0e6";
+[[1.5,4.5],[8,11]].forEach(a=>{o+=pl([P(X+a[0],Y+D,Z+3.2),P(X+a[1],Y+D,Z+3.2),P(X+a[1],Y+D,Z+1.4),P(X+a[0],Y+D,Z+1.4)],gl,"#fff")});
+o+=pl([P(X+5.6,Y+D,Z+3.2),P(X+7,Y+D,Z+3.2),P(X+7,Y+D,Z),P(X+5.6,Y+D,Z)],"#7a4b2a","#0006");
+o+=pl([P(X+W,Y+2.5,Z+3.2),P(X+W,Y+5.5,Z+3.2),P(X+W,Y+5.5,Z+1.4),P(X+W,Y+2.5,Z+1.4)],gl,"#fff")}
+if(n>=5){const R=Z+H,T=R+3.2,m=Y+D/2,e=.6;
+if(n<6){for(let i=0;i<=W;i+=2)o+=ln(P(X+i,Y-e,R),P(X+i,m,T),"#b3874b",1.5)+ln(P(X+i,m,T),P(X+i,Y+D+e,R),"#c79a5b",2);o+=ln(P(X,m,T),P(X+W,m,T),"#c79a5b",2)}
+else{const rc=n>=6?"#56606b":"#caa46a";o+=pl([P(X-e,m,T),P(X+W+e,m,T),P(X+W+e,Y-e,R),P(X-e,Y-e,R)],"#454e58")+pl([P(X+W+e,m,T),P(X+W+e,Y+D+e,R),P(X+W+e,Y-e,R)],n>=9?"#cdbf9f":"#bfa672")+pl([P(X-e,m,T),P(X+W+e,m,T),P(X+W+e,Y+D+e,R),P(X-e,Y+D+e,R)],rc)}
+if(n>=8)o+=box(X+2,m+1.2,R+1.2,1,1,2.6,"#8c3b2e","#a04a3a","#7d3327")+ln(P(X+9.5,m+2,R+1.3),P(X+9.5,m+2,R+2.6),"#e6e6e6",3)}
+return `<svg viewBox="0 0 360 250" role="img" aria-label="Le chantier : ${n} étape${n>1?"s":""} sur 10 terminée${n>1?"s":""}" style="width:100%;display:block;background:linear-gradient(#cfe9f7,#eef7fb);border-radius:12px">${o}</svg>`}
+function jgCount(){const d=jgSt().d;let n=0;for(const s of ETC){if(d[s.id])n++;else break}return n}
+function jgStars(){const d=jgSt().d;return ETC.reduce((t,s)=>t+(d[s.id]||0),0)}
+function jgStart(i){const st=ETC[i],subs=st.subs.filter(x=>(x.s||[]).length>=4),sb=subs[Math.floor(Math.random()*subs.length)]||st.subs[0],a=Math.floor(Math.random()*Math.max(1,sb.s.length-3)),ok=sb.s.slice(a,a+4);
+const ws=[];st.subs.forEach(x=>(x.w||[]).forEach(w=>ws.push(w)));const all=[];ETC.forEach(e=>e.subs.forEach(x=>(x.w||[]).forEach(w=>{if(!all.includes(w[0]))all.push(w[0])})));
+const qs=jgMix(ws).slice(0,2).map(w=>({d:w[1],a:w[0],o:jgMix([w[0]].concat(jgMix(all.filter(t=>t!==w[0])).slice(0,3)))}));
+S.jg={i,ph:0,err:0,sub:sb.t,ok,mix:jgMix(ok.map((t,k)=>k)),put:[],qs,qi:0,pick:null,msg:""};go("jeu")}
+function jgTap(k){const G=S.jg;if(G.put.includes(k))return;if(k===G.put.length){G.put.push(k);G.msg=G.put.length===G.ok.length?"":"✓ Bon !"}else{G.err++;G.msg="Pas encore : celle-là vient plus tard. Cherche ce qui se fait avant."}render()}
+function jgAns(k){const G=S.jg,q=G.qs[G.qi];if(G.pick!==null)return;G.pick=k;if(q.o[k]!==q.a)G.err++;render()}
+function jgNext(){const G=S.jg;if(G.ph===0){G.ph=1}else if(G.ph===1){G.ph=G.qs.length?2:3;G.msg=""}else if(G.ph===2){G.pick=null;G.qi++;if(G.qi>=G.qs.length)G.ph=3}
+if(G.ph===3&&!G.fin){G.fin=1;const st=ETC[G.i],d=jgSt().d,s=G.err===0?3:G.err<=2?2:1;G.s=s;d[st.id]=Math.max(d[st.id]||0,s);etSave()}render();scrollTo(0,0)}
+function jgReset(b){if(b.dataset.ok){S.et.jeu={d:{}};etSave();S.jg=null;go("jeu");return}b.dataset.ok=1;b.textContent="Touche encore pour tout recommencer"}
+function jeu(){const G=S.jg,n=jgCount(),d=jgSt().d,star=s=>"⭐".repeat(s)+"☆".repeat(3-s);
+if(!G||G.i==null){return `<button class="alt" onclick="go('home')">← Accueil</button><h1>🎮 Chantier, le jeu</h1><div class="mut">Bâtis la maison une étape à la fois. À chaque étape : remets les travaux dans l'ordre, puis trouve les bons mots. La matière vient de ta section Construction.</div>
+<div class="card" style="padding:8px">${jgScene(n)}<div style="padding:8px 6px 2px"><b>${n===10?"🏁 Maison terminée !":n+" étape"+(n>1?"s":"")+" sur 10"}</b> · ${jgStars()} ⭐ sur 30</div></div>
+${ETC.map((s,i)=>{const dn=d[s.id],lock=i>n;return `<button class="sec" ${lock?"disabled":""} onclick="jgStart(${i})"><span>${lock?"🔒":s.ic} ${i+1}. ${esc(s.t)}</span><span class="pill">${dn?star(dn):lock?"à débloquer":"à faire"}</span></button>`}).join("")}
+<div class="card" style="background:var(--bg)"><div class="mut">Jeu d'étude non officiel. Les questions viennent des résumés de Lisa : valide toujours avec tes recueils et ton enseignant.</div></div>
+${n?`<button class="alt" onclick="jgReset(this)">Recommencer le jeu à zéro</button>`:""}`}
+const st=ETC[G.i],top=`<button class="alt" onclick="S.jg=null;go('jeu')">← Le chantier</button><h2>${st.ic} Étape ${G.i+1} : ${esc(st.t)}</h2>`;
+if(G.ph===0)return top+`<div class="card" style="padding:8px">${jgScene(Math.min(n,G.i))}</div><div class="card"><b>Ce qu'on bâtit</b><p>${esc(st.b)}</p><div class="mut">3 défis : 1 ordre des travaux, 2 mots du métier. Moins tu fais d'erreurs, plus tu gagnes d'étoiles.</div></div><div class="row"><button onclick="jgNext()">Commencer l'étape</button><button class="alt" onclick="S.cs={st:'${st.id}',q:'',open:null};go('constr')">📖 Réviser avant</button></div>`;
+if(G.ph===1){const done=G.put.length===G.ok.length;return top+`<div class="card"><b>Défi 1 sur 3 · Remets dans l'ordre</b><div class="mut">${esc(G.sub)} : touche les travaux du premier au dernier.</div>
+${G.put.length?`<ol style="margin:10px 0;padding-left:22px">${G.put.map(k=>`<li>${esc(G.ok[k])}</li>`).join("")}</ol>`:""}
+${G.mix.filter(k=>!G.put.includes(k)).map(k=>`<button class="sec" onclick="jgTap(${k})"><span>${esc(G.ok[k])}</span></button>`).join("")}
+<div role="status" aria-live="polite" style="margin-top:8px;font-weight:600">${done?"✅ C'est le bon ordre !":esc(G.msg)}</div>${done?`<button style="margin-top:8px" onclick="jgNext()">Défi suivant →</button>`:""}</div>`}
+if(G.ph===2){const q=G.qs[G.qi],pk=G.pick;return top+`<div class="card"><b>Défi ${G.qi+2} sur 3 · Le bon mot</b><p>Quel mot correspond à cette définition ?</p><p style="font-style:italic">« ${esc(q.d)} »</p>
+${q.o.map((t,k)=>{const good=t===q.a,cls=pk===null?"sec":good?"sec r4":k===pk?"sec r1":"sec";return `<button class="${cls}" ${pk!==null?"disabled style=\"opacity:1\"":""} onclick="jgAns(${k})"><span>${pk!==null&&good?"✅ ":pk===k&&!good?"❌ ":""}${esc(t)}</span></button>`}).join("")}
+<div role="status" aria-live="polite" style="margin-top:8px;font-weight:600">${pk===null?"":q.o[pk]===q.a?"Bravo !":"Pas tout à fait : c'était « "+esc(q.a)+" »."}</div>${pk!==null?`<button style="margin-top:8px" onclick="jgNext()">Continuer →</button>`:""}</div>`}
+const nn=jgCount(),last=G.i>=ETC.length-1;
+return top+`<div class="card" style="padding:8px">${jgScene(nn)}</div><div class="card" style="text-align:center"><div style="font-size:34px">${star(G.s||1)}</div><b>${G.err===0?"Sans faute !":"Étape réussie"}</b><div class="mut">${G.err} erreur${G.err>1?"s":""}. ${nn===10?"La maison est terminée, bravo !":"Le chantier avance."}</div></div>
+<div class="row">${last?"":`<button onclick="jgStart(${G.i+1})">Étape suivante →</button>`}<button class="alt" onclick="jgStart(${G.i})">Rejouer cette étape</button><button class="alt" onclick="S.jg=null;go('jeu')">Voir le chantier</button></div>`}
 function constr(){const C=S.cs||(S.cs={st:null,q:"",open:null});const t=csTot();const st=ETC.find(x=>x.id===C.st);
 const ban=`<div class="card" style="background:var(--bg)"><div class="mut">Résumés écrits par l'auteur de Lisa pour comprendre la construction d'une maison, étape par étape. Ils ne sont <b>pas</b> un document officiel : les dimensions sont des valeurs courantes données à titre d'exemple, et le Code et les plans ont toujours priorité. Les numéros d'articles de la Partie 9 sont des repères pour retrouver le bon endroit dans le Code. Valide avec tes recueils et ton enseignant avant de t'y fier dans un travail noté.</div></div>`;
 if(st){const i=ETC.indexOf(st),pv=ETC[i-1],nx=ETC[i+1];
@@ -3003,7 +3062,7 @@ ${S.et.hi?"":`<div class="card" style="border-color:var(--pri)"><b>👋 Commence
 <div class="card"><b>Ma progression</b> <span class="mut">${tot.v}/${tot.n} chapitres vus</span>${bar}</div>
 <h2 class="rbh">Étudier</h2>
 <div class="grid2">${T(1,"🏛️","Quel code ?","régime et partie du Code","openRg('etu')")}${T(2,"📝","S'entraîner","QCM, pièges, vérification","S.qc&&(S.qc.tab='q');go('qcm')")}${T(3,"🔍","Comprendre","pourquoi ça arrive","S.cp=null;go('comp')")}${T(4,"❓","Questions","Lisa t'explique","go('qa')")}</div>
-${acc("mais",false,`<span class="rbic r5">🏡</span><span style="flex:1">Comprendre ma maison</span>`,R(5,"🏗️","Construction","de la terre à la clé, étape par étape","S.cs&&(S.cs.st=null);go('constr')")+R(6,"📖","Ma maison, le livre","34 pages, un dessin qui se construit","S.lv&&(S.lv.p=null);go('livre')")+R(7,"🔧","Atelier","réparer les petits bris","S.at&&(S.at.k=null);go('atelier')"))}
+${acc("mais",false,`<span class="rbic r5">🏡</span><span style="flex:1">Comprendre ma maison</span>`,R(5,"🏗️","Construction","de la terre à la clé, étape par étape","S.cs&&(S.cs.st=null);go('constr')")+R(4,"🎮","Chantier, le jeu","bâtis la maison en répondant","S.jg=null;go('jeu')")+R(6,"📖","Ma maison, le livre","34 pages, un dessin qui se construit","S.lv&&(S.lv.p=null);go('livre')")+R(7,"🔧","Atelier","réparer les petits bris","S.at&&(S.at.k=null);go('atelier')"))}
 ${acc("cours",true,`<span class="rbic r6">🎓</span><span style="flex:1">Mes cours</span>`,`<div class="rbpills"><button class="r5" onclick="go('bul')">📊 Mes notes</button><button class="r6" onclick="go('inv')">📋 Mes documents</button><button class="r7" onclick="go('refs')">📚 Références</button></div>
 <button class="rbrow rbmc" onclick="go('mcours')"><span class="rbic r1">🎒</span><span>${mc?"Reprendre ma séance":"Mode cours"}<small>${mc?esc(mc.nom)+" · p. "+(S.et.mc.pg||1):"suis ton cours page par page avec ton recueil"}</small></span><span class="rbgo">›</span></button>
 ${ses(1,1)}${ses(2,4)}${ses(3,6)}`)}
@@ -3210,7 +3269,7 @@ const t=moGet(id);if(!t)return;moDocs(t).forEach(d=>{try{const x=IDB.db.transact
 /* ===== Version installable (hors Claude) ===== */
 if(!(window.claude&&claude.use)){DL={save:async({filename,data})=>{const t=/\.json$/i.test(filename)?"application/json":/\.html?$/i.test(filename)?"text/html":"text/plain";const b=data instanceof Blob?data:new Blob([data],{type:t});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}}}
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
-window.LISA_V="22";
+window.LISA_V="23";
 function lisaToast(m,btn){let t=document.getElementById("lisat");if(!t){t=document.createElement("div");t.id="lisat";t.setAttribute("role","status");t.style.cssText="position:fixed;left:12px;right:12px;bottom:76px;z-index:99999;background:#0f4c5c;color:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 4px 16px rgba(0,0,0,.3);display:flex;gap:10px;align-items:center;justify-content:space-between";document.body.appendChild(t)}t.innerHTML="";const s=document.createElement("span");s.textContent=m;t.appendChild(s);if(btn){const b=document.createElement("button");b.textContent=btn[0];b.style.cssText="flex:none;background:#fff;color:#0f4c5c;border:0;border-radius:8px;padding:8px 12px;font-weight:700";b.onclick=btn[1];t.appendChild(b)}else setTimeout(()=>{try{t.remove()}catch(e){}},5000)}
 async function lisaUpdate(){const o=document.getElementById("luo"),say=m=>{if(o)o.textContent=m;lisaToast(m)};
 try{if(!("serviceWorker" in navigator)){location.reload();return}
