@@ -111,7 +111,7 @@ function homeInsp(){const n=S.list.filter(i=>i.status==="en cours").length;retur
 <button class="big" onclick="newInsp()">✨ Nouvelle inspection</button>
 <button class="big alt" onclick="S.cur=(S.list.find(i=>i.status==='en cours')||{}).id;S.cur?go('tour'):alert('Aucune inspection en cours.')">🔄 Inspection en cours <span class="pill">${n}</span></button>
 <button class="big alt" onclick="go('old')">📂 Anciennes inspections</button>
-<h2>Gestion</h2><div class="grid2"><button class="tile" onclick="go('agenda')"><span>📅</span>Agenda des visites</button><button class="tile" onclick="go('clients')"><span>👥</span>Clients</button><button class="tile" onclick="go('factures')"><span>🧾</span>Facturation</button><button class="tile" onclick="go('trad')"><span>🌐</span>Traducteur FR / EN</button><button class="tile" onclick="go('profil')"><span>👤</span>Mon profil<small>logo, sceau, signature</small></button><button class="tile" onclick="go('calc')"><span>🧮</span>Calculatrice<small>et convertisseur</small></button><button class="tile" onclick="go('lexique')"><span>📖</span>Lexique FR / EN<small>termes de l'inspection</small></button><button class="tile" onclick="openRg('home')"><span>🏛️</span>Quel code s'applique ?<small>régime et partie du Code</small></button><button class="tile" onclick="openNotes('home')"><span>🎙️</span>Notes vocales<small>${(S.nt||[]).length?(S.nt.length+" note"+(S.nt.length>1?"s":"")):"dicte, ça s'écrit en note"}</small></button></div>${bkCard()}<p class="mut">Prototype : tes données restent sur cet appareil. Aucune estimation de coûts de réparation n'est produite.</p><p class="mut" style="font-size:12px">Version du 30 oct. 2026 · rapport web</p>`}
+<h2>Gestion</h2><div class="grid2"><button class="tile" onclick="go('agenda')"><span>📅</span>Agenda des visites</button><button class="tile" onclick="go('clients')"><span>👥</span>Clients</button><button class="tile" onclick="go('factures')"><span>🧾</span>Facturation</button><button class="tile" onclick="go('trad')"><span>🌐</span>Traducteur FR / EN</button><button class="tile" onclick="go('profil')"><span>👤</span>Mon profil<small>logo, sceau, signature</small></button><button class="tile" onclick="go('calc')"><span>🧮</span>Calculatrice<small>et convertisseur</small></button><button class="tile" onclick="go('lexique')"><span>📖</span>Lexique FR / EN<small>termes de l'inspection</small></button><button class="tile" onclick="openRg('home')"><span>🏛️</span>Quel code s'applique ?<small>régime et partie du Code</small></button><button class="tile" onclick="openNotes('home')"><span>🎙️</span>Notes vocales<small>${(S.nt||[]).length?(S.nt.length+" note"+(S.nt.length>1?"s":"")):"dicte, ça s'écrit en note"}</small></button></div>${bkCard()}<p class="mut">Prototype : tes données restent sur cet appareil. Aucune estimation de coûts de réparation n'est produite.</p><p class="mut" style="font-size:12px">Version 28 · 16 nov. 2026</p>`}
 function old(){const q=S.q.toLowerCase();const l=S.list.filter(i=>i.status!=="en cours"&&(i.client.nom+" "+i.client.adresse).toLowerCase().includes(q));
 setTimeout(()=>{const s=$("q");if(s)s.oninput=e=>{S.q=e.target.value;render();$("q").focus()}},0);
 return `<button class="alt" onclick="go('home')">← Accueil</button><h2>Anciennes inspections</h2><input id="q" placeholder="Chercher par nom ou adresse" value="${esc(S.q)}">`+(l.length?l.map(i=>`<div class="card"><b>${esc(i.client.nom)||"Sans nom"}</b><div class="mut">${esc(i.client.adresse)} · ${new Date(i.created).toLocaleDateString("fr-CA")} · ⏱ ${tfmt(tel(i))}</div><div class="row" style="margin-top:8px"><button class="alt" onclick="openInsp(${i.id},'report')">Voir le rapport</button><button class="warn" onclick="askEdit(${i.id})">Modifier</button></div>${i.modifs.length?`<div class="mut">Modifié ${i.modifs.length} fois (dernière : ${new Date(i.modifs.at(-1)).toLocaleString("fr-CA")})</div>`:""}</div>`).join(""):`<p class="mut">Aucun rapport archivé pour l'instant. Termine une inspection pour la retrouver ici.</p>`)}
@@ -3413,6 +3413,278 @@ window.__lisaRl=1;say("✅ Nouvelle version installée. Rechargement…");setTim
 catch(e){say("⚠ Impossible de vérifier : es-tu connecté à Internet?")}}
 try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)){const had=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(had&&!window.__lisaRl)lisaToast("🔄 Nouvelle version prête.",["Recharger",()=>{window.__lisaRl=1;location.reload()}])})}}catch(e){}
 try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}catch(e){}
+</script>
+<script>
+/* ===== Version 28 : surligneurs 3 couleurs, gomme, soulignement, notes collées, images,
+   reprise à la dernière page, panneau réductible, révision par couleur, examen blanc,
+   Parle à Lisa, banque de constats BNQ ===== */
+window.LISA_V="28";
+(function(){const st=document.createElement("style");st.textContent=`
+.v28pal{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:6px 8px;background:var(--card);border-bottom:1px solid var(--line)}
+.v28pal button,.v28pal .btn{padding:6px 10px;font-size:13px}
+.v28c{border:2px solid transparent;color:var(--ink)!important;font-weight:600}
+.v28c.on{border-color:var(--ink)}
+.v28sep{width:1px;height:24px;background:var(--line);margin:0 2px}
+.v28img{cursor:pointer;display:inline-block;padding:6px 10px;border-radius:10px;border:1px solid var(--line);font-size:13px}
+.mcgrip{display:flex;align-items:center;gap:8px;margin:-4px 0 6px}
+.mcg{flex:1;height:22px;cursor:ns-resize;touch-action:none;display:flex;align-items:center;justify-content:center}
+.mcg:before{content:"";width:56px;height:5px;border-radius:9px;background:var(--line)}
+.mcbt{padding:6px 12px!important;font-size:13px!important}
+.v28pin{position:absolute;transform:translate(-50%,-100%);border:0;background:none;font-size:22px;line-height:1;padding:0;cursor:pointer;pointer-events:auto;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+.v28sheet{position:fixed;left:0;right:0;bottom:0;z-index:10002;background:var(--card);border-top:1px solid var(--line);padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 16px rgba(0,0,0,.25)}
+.v28imgs img{max-width:100%;border-radius:8px;border:1px solid var(--line);display:block;margin-top:6px}
+#lisafab{position:fixed;right:12px;z-index:6;border-radius:999px;padding:12px 18px;font-weight:700;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+#lchat{position:fixed;inset:0;z-index:10050;background:var(--bg);color:var(--ink);display:flex;flex-direction:column}
+#lchat .lcm{flex:1;overflow:auto;padding:10px 12px}
+#lchat .lcb{max-width:88%;margin:8px 0;padding:10px 12px;border-radius:14px;white-space:pre-wrap}
+#lchat .lcu{margin-left:auto;background:var(--pri);color:#fff;border-bottom-right-radius:4px}
+#lchat .lca{background:var(--card);border:1px solid var(--line);border-bottom-left-radius:4px}
+#lchat .lcin{border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));background:var(--card)}
+.exch{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;margin:6px 0;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:400}
+.exch.sel{border-color:var(--pri);box-shadow:0 0 0 2px var(--pri) inset}
+.exch.ok{border-color:#16a34a;box-shadow:0 0 0 2px #16a34a inset}
+.exch.ko{border-color:#dc2626;box-shadow:0 0 0 2px #dc2626 inset}
+.exbar{height:8px;border-radius:9px;background:var(--line);overflow:hidden;margin:6px 0}.exbar span{display:block;height:100%;background:var(--pri)}
+#bnqov{position:fixed;inset:0;z-index:10010;background:var(--bg);color:var(--ink);overflow:auto;padding:14px 14px 90px}
+.bqpill{display:inline-block;font-size:12px;border-radius:99px;padding:1px 8px;margin-right:4px}
+`;document.head.appendChild(st)})();
+
+/* ----- Couleurs et outils ----- */
+const V28C={r:{n:"Rouge",d:"à retenir ou à faire",f:"rgba(239,68,68,.35)",s:"rgba(220,38,38,.95)",e:"🔴"},j:{n:"Jaune",d:"important",f:"rgba(255,214,0,.45)",s:"rgba(202,138,4,.95)",e:"🟡"},v:{n:"Vert",d:"mérite une attention",f:"rgba(76,217,100,.38)",s:"rgba(22,163,74,.95)",e:"🟢"}};
+function v28T(){return S.et.v28||(S.et.v28={tool:"hl",col:"r"})}
+function v28Key(d){return String(d&&d.name||"").toLowerCase().trim()}
+function v28Id(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return "k"+(h>>>0).toString(36)+s.length}
+function v28Set(k,v){v28T()[k]=v;etSave();v28Pal();etVLeg();const ov=$("etvov");if(ov)ov.style.cursor=v28T().tool==="er"?"cell":"crosshair"}
+
+/* ----- Dernière page consultée (par document, aussi en ligne dans la version Claude) ----- */
+function v28Last(){const d=etVMeta(ETV.id);if(!d)return;const k=v28Key(d),L=S.et.lastpg||(S.et.lastpg={});if(L[k]&&L[k].pg===ETV.pg)return;L[k]={pg:ETV.pg,at:Date.now()};clearTimeout(window.__v28lp);window.__v28lp=setTimeout(()=>{etSave();v28Cloud(k,L[k])},700)}
+function v28Cloud(k,v){try{if(typeof DBH!=="undefined"&&DBH&&UID)DBH.collection("data/users/"+UID+"/lastpg").doc(v28Id(k)).set({k,pg:v.pg,at:v.at}).catch(()=>{})}catch(e){}}
+(function(){let n=0;const t=setInterval(async()=>{if(typeof DBH!=="undefined"&&DBH&&UID&&S.et&&IDB.db){clearInterval(t);try{const sn=await DBH.collection("data/users/"+UID+"/lastpg").get(),L=S.et.lastpg||(S.et.lastpg={});let ch=0;sn.docs.forEach(x=>{const o=x.data();if(o&&o.k&&o.pg&&(!L[o.k]||(L[o.k].at||0)<o.at)){L[o.k]={pg:o.pg,at:o.at};ch=1}});if(ch)etSave()}catch(e){}}else if(++n>30)clearInterval(t)},1500)})();
+function v28Open(id,pg){window.__v28nr=1;const d=etVMeta(id);etView(id,pg,d&&!/\.pdf$/i.test(d.name)&&!/pdf/i.test(d.type||"")?"txt":"pdf")}
+
+/* ----- Visionneuse ----- */
+const _v28View=etView;
+etView=async function(id,pg,kind){const d=etVMeta(id),nr=window.__v28nr;window.__v28nr=0;let p=pg||1,res=0;const L=d?(S.et.lastpg||{})[v28Key(d)]:null;
+if(!nr&&p===1&&!(ETV.hl&&ETV.hl.length)&&!ETV.mc&&L&&L.pg>1){p=L.pg;res=1}
+await _v28View(id,p,kind);v28Tools();
+if(res&&typeof lisaToast==="function"){lisaToast("📖 Reprise à la page "+p+", la dernière page que tu as consultée.",["Aller à la page 1",()=>{const t=$("lisat");if(t)t.remove();ETV.pg=1;etVDraw()}]);const tt=$("lisat");if(tt){tt.style.bottom="auto";tt.style.top="calc(118px + env(safe-area-inset-top,0px))"}setTimeout(()=>{const t=$("lisat");if(t)t.remove()},7000)}};
+function v28Tools(){const tb=document.querySelector("#etvw .etvtb");if(!tb||$("etvpal"))return;tb.insertAdjacentHTML("afterend",`<div id="etvpal" class="v28pal" style="display:none"></div>`);v28Pal()}
+function v28Pal(){const p=$("etvpal");if(!p)return;const T=v28T();p.style.display=ETV.mark?"flex":"none";
+p.innerHTML=Object.keys(V28C).map(k=>`<button type="button" class="v28c${T.col===k?" on":""}" style="background:${V28C[k].f}" aria-pressed="${T.col===k}" title="${V28C[k].d}" onclick="v28Set('col','${k}')">${V28C[k].e} ${V28C[k].n}</button>`).join("")+`<span class="v28sep"></span>`+[["hl","🖍️ Surligner"],["u","＿ Souligner"],["er","🧽 Gomme"],["pin","📌 Note"]].map(x=>`<button type="button" class="${T.tool===x[0]?"":"alt"}" aria-pressed="${T.tool===x[0]}" onclick="v28Set('tool','${x[0]}')">${x[1]}</button>`).join("")+`<span class="v28sep"></span><label class="v28img">🖼️ Image<input type="file" accept="image/*" style="display:none" onchange="v28ImgAdd(this)"></label><button type="button" class="alt" onclick="etVClose();go('hlrev')">📚 Révision</button>`}
+etVMark=function(){ETV.mark=!ETV.mark;const b=$("etvmk");if(b){b.className=ETV.mark?"":"alt";b.setAttribute("aria-pressed",String(ETV.mark));b.textContent=ETV.mark?"🖍️ on":"🖍️"}const v=$("etvov");if(v)v.style.pointerEvents=ETV.mark?"auto":"none";const s=$("etvb");if(s)s.style.touchAction=ETV.mark?"none":"";v28Pal();etVLeg()};
+etVLeg=function(){const l=$("etvleg");if(!l)return;const L=etHlAll()[etHlKey()]||[],T=v28T(),cnt={};L.forEach(r=>{const c=r[4]||"v";cnt[c]=(cnt[c]||0)+1});
+const tip={hl:"Glisse ton doigt sur une ligne pour la surligner en "+V28C[T.col].n.toLowerCase()+".",u:"Glisse ton doigt le long d'une ligne pour la souligner en "+V28C[T.col].n.toLowerCase()+".",er:"Gomme : touche ou glisse sur un surlignage pour l'effacer.",pin:"Touche la page à l'endroit où tu veux coller ta note."}[T.tool]||"";
+l.innerHTML=(ETV.mark?"✍️ "+tip+" ":"")+(ETV.hl&&ETV.hl.length?"<span style='background:rgba(56,189,248,.4);padding:0 4px;border-radius:3px'>Bleu</span> : passage trouvé par Lisa. ":"")+Object.keys(V28C).filter(k=>cnt[k]||ETV.mark).map(k=>`<span style='background:${V28C[k].f};padding:0 4px;border-radius:3px'>${V28C[k].n}</span> ${V28C[k].d}${cnt[k]?" ("+cnt[k]+")":""}`).join(" · ")};
+
+etVDraw=async function(){const b=$("etvb");if(!b)return;const tt=$("etvt"),pp=$("etvp");if(tt)tt.textContent=etShortN(ETV.name);if(pp)pp.textContent=(ETV.kind==="pdf"||ETV.kind==="txt")?" p. "+ETV.pg+(ETV.n?" / "+ETV.n:"")+" ":"";
+if(ETV.mc){mcSeen();mcBar()}
+const mk=$("etvmk");if(mk)mk.style.display=ETV.kind==="pdf"?"":"none";
+if(ETV.kind==="img"){try{const f=await IDB.get("etdoc:"+ETV.id);if(ETV.url)URL.revokeObjectURL(ETV.url);ETV.url=URL.createObjectURL(f);b.innerHTML=`<img src="${ETV.url}" alt="" style="width:${ETV.zoom*100}%;max-width:none">`}catch(e){b.textContent="Impossible d'afficher cette image."}return}
+v28Last();
+if(ETV.kind==="txt"){b.innerHTML=((await etVText())||'<div class="mut">Texte non disponible.</div>')+`<div id="v28imgs" class="v28imgs"></div>`;const dt=b.querySelector("details");if(dt)dt.open=true;const m=b.querySelector("mark");if(m)setTimeout(()=>m.scrollIntoView({block:"center"}),50);v28Imgs();etVLeg();return}
+b.innerHTML='<div class="mut">⏳ Chargement de la page…</div>';
+try{const Lb=await etPdfLib();if(ETV.docId!==ETV.id||!ETV.doc){const f=await IDB.get("etdoc:"+ETV.id);if(!f)throw new Error("absent");ETV.doc=await Lb.getDocument({data:await f.arrayBuffer()}).promise;ETV.docId=ETV.id;ETV.n=ETV.doc.numPages}
+if(ETV.pg>ETV.doc.numPages)ETV.pg=ETV.doc.numPages;v28Last();const pg=await ETV.doc.getPage(ETV.pg),w=Math.max(260,(b.clientWidth||360)-16),v0=pg.getViewport({scale:1}),sc=w/v0.width*ETV.zoom,dpr=Math.min(window.devicePixelRatio||1,2),v=pg.getViewport({scale:sc*dpr});
+const W=Math.floor(v.width),H=Math.floor(v.height),cw=Math.floor(v.width/dpr)+"px",ch=Math.floor(v.height/dpr)+"px";
+const c=document.createElement("canvas");c.width=W;c.height=H;c.style.cssText="width:"+cw+";height:"+ch+";background:#fff;border:1px solid rgba(128,128,128,.4);display:block";
+await pg.render({canvasContext:c.getContext("2d"),viewport:v}).promise;
+const ov=document.createElement("canvas");ov.id="etvov";ov.width=W;ov.height=H;ov.style.cssText="position:absolute;left:0;top:0;width:"+cw+";height:"+ch+";pointer-events:"+(ETV.mark?"auto":"none")+";touch-action:none;cursor:"+(v28T().tool==="er"?"cell":"crosshair");
+const wrap=document.createElement("div");wrap.style.cssText="position:relative;width:"+cw+";margin:0 auto";wrap.appendChild(c);wrap.appendChild(ov);
+const pl=document.createElement("div");pl.id="v28pl";pl.style.cssText="position:absolute;inset:0;pointer-events:none";wrap.appendChild(pl);
+let auto=[];if(ETV.hl&&ETV.hl.length){try{const tc=await pg.getTextContent();tc.items.forEach(it=>{if(!it.str||!it.str.trim())return;const n=etNorm(it.str);if(!ETV.hl.some(x=>n.includes(x)))return;const M=etMul(v.transform,it.transform),fh=Math.hypot(M[2],M[3]),iw=it.width*v.scale;auto.push([M[4],M[5]-fh*1.05,iw,fh*1.35])})}catch(e){}}
+const key=etHlKey(),A=etHlAll();
+const drawR=(x,r)=>{const C=V28C[r[4]||"v"]||V28C.v;if(r[5]==="u"){x.fillStyle=C.s;const th=Math.max(2.5*dpr,r[3]*H*.14);x.fillRect(r[0]*W,(r[1]+r[3])*H-th,r[2]*W,th)}else{x.fillStyle=C.f;x.fillRect(r[0]*W,r[1]*H,r[2]*W,r[3]*H)}};
+const draw=()=>{const x=ov.getContext("2d");x.clearRect(0,0,W,H);x.fillStyle="rgba(56,189,248,.35)";auto.forEach(r=>x.fillRect(r[0],r[1],r[2],r[3]));(A[key]||[]).forEach(r=>drawR(x,r))};
+const rectOf=s=>{const h0=Math.max(.018,Math.abs(s.y-s.b)),y0=Math.abs(s.y-s.b)<.018?s.b-.009:Math.min(s.b,s.y);return[Math.min(s.a,s.x),y0,Math.abs(s.x-s.a),h0]};
+const erase=(a,b2)=>{const L=A[key];if(!L)return 0;const i=L.findIndex(r=>a>=r[0]-.005&&a<=r[0]+r[2]+.005&&b2>=r[1]-.012&&b2<=r[1]+r[3]+.012);if(i<0)return 0;L.splice(i,1);if(!L.length)delete A[key];return 1};
+let st=null;const P=e=>{const bb=ov.getBoundingClientRect();return[(e.clientX-bb.left)/bb.width,(e.clientY-bb.top)/bb.height]};
+ov.onpointerdown=e=>{if(!ETV.mark)return;e.preventDefault();const T=v28T(),[a,b2]=P(e);if(T.tool==="pin"){v28PinEdit(key,null,a,b2);return}ov.setPointerCapture(e.pointerId);if(T.tool==="er"){st={er:1};if(erase(a,b2)){draw();etVLeg()}return}st={a,b:b2,x:a,y:b2,mv:0,u:T.tool==="u",c:T.col}};
+ov.onpointermove=e=>{if(!st)return;const[a,b2]=P(e);if(st.er){if(erase(a,b2)){draw();etVLeg()}return}st.x=a;st.y=b2;if(Math.abs(a-st.a)>.01||Math.abs(b2-st.b)>.01)st.mv=1;draw();if(st.mv){drawR(ov.getContext("2d"),rectOf(st).concat([st.c,st.u?"u":""]))}};
+ov.onpointerup=()=>{if(!st)return;if(st.er){st=null;etSave();return}if(st.mv){const L=A[key]||(A[key]=[]);L.push(rectOf(st).concat([st.c,st.u?"u":""]))}st=null;etSave();draw();etVLeg()};
+draw();const pp2=$("etvp");if(pp2)pp2.textContent=" p. "+ETV.pg+" / "+ETV.n+" ";b.innerHTML="";b.appendChild(wrap);v28Pins();b.insertAdjacentHTML("beforeend",`<div id="v28imgs" class="v28imgs"></div>`+await etVText());v28Imgs();b.scrollTop=0;
+if(auto.length){const y=Math.min(...auto.map(r=>r[1]))/dpr;b.scrollTop=Math.max(0,y-80)}etVLeg()}
+catch(e){b.innerHTML='<div class="mut">Je n\'ai pas pu dessiner la page (module de lecture non disponible ?). Voici son texte :</div>'+(await etVText()).replace("<details ","<details open ")}};
+
+/* ----- Notes collées sur un passage ----- */
+function v28PinsAll(){return S.et.pins||(S.et.pins={})}
+function v28Pins(){const pl=$("v28pl");if(!pl)return;const L=v28PinsAll()[etHlKey()]||[];pl.innerHTML=L.map(p=>`<button type="button" class="v28pin" style="left:${p.x*100}%;top:${p.y*100}%" aria-label="Note : ${esc(p.t.slice(0,60))}" onclick="v28PinEdit('${etHlKey()}','${p.id}')">${(V28C[p.c]||V28C.r).e==="🟢"?"📗":(V28C[p.c]||V28C.r).e==="🟡"?"📒":"📕"}</button>`).join("")}
+function v28PinEdit(key,id,x,y){const L=v28PinsAll()[key]||[],p=id?L.find(z=>z.id===id):null;let s=$("v28sh");if(s)s.remove();s=document.createElement("div");s.id="v28sh";s.className="v28sheet";s.setAttribute("role","dialog");
+s.innerHTML=`<b>📌 ${p?"Ma note":"Nouvelle note"} · p. ${esc(key.split(":").pop())}</b><textarea id="v28pt" rows="4" style="margin-top:6px" placeholder="Écris ton explication avec tes mots…">${esc(p?p.t:"")}</textarea><div class="row" style="margin-top:8px"><button type="button" onclick="v28PinSave('${key}','${id||""}',${x||0},${y||0})">Enregistrer</button>${p?`<button type="button" class="alt" onclick="v28PinDel('${key}','${id}')">🗑️ Supprimer</button>`:""}<button type="button" class="alt" onclick="$('v28sh').remove()">Fermer</button></div>`;document.body.appendChild(s);setTimeout(()=>{const t=$("v28pt");if(t)t.focus()},50)}
+function v28PinSave(key,id,x,y){const t=($("v28pt")||{value:""}).value.trim(),A=v28PinsAll(),L=A[key]||(A[key]=[]);if(id){const p=L.find(z=>z.id===id);if(p){if(t)p.t=t;else L.splice(L.indexOf(p),1)}}else if(t)L.push({id:Date.now().toString(36),x,y,t,c:v28T().col});if(!L.length)delete A[key];etSave();const s=$("v28sh");if(s)s.remove();v28Pins()}
+function v28PinDel(key,id){const A=v28PinsAll(),L=A[key]||[];const i=L.findIndex(z=>z.id===id);if(i>=0)L.splice(i,1);if(!L.length)delete A[key];etSave();const s=$("v28sh");if(s)s.remove();v28Pins()}
+
+/* ----- Images ajoutées à une page ----- */
+function v28ImgAll(){return S.et.pimg||(S.et.pimg={})}
+async function v28ImgAdd(inp){const f=inp.files&&inp.files[0];inp.value="";if(!f||!ETV.id)return;try{const url=await new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=ko;r.readAsDataURL(f)}),im=await new Promise((ok,ko)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=ko;i.src=url}),sc=Math.min(1,1600/Math.max(im.width,im.height)),cv=document.createElement("canvas");cv.width=Math.round(im.width*sc);cv.height=Math.round(im.height*sc);cv.getContext("2d").drawImage(im,0,0,cv.width,cv.height);
+const id="i"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);await IDB.set("etpimg:"+id,cv.toDataURL("image/jpeg",.82));const A=v28ImgAll(),k=etHlKey();(A[k]||(A[k]=[])).push({id,cap:"",at:Date.now()});etSave();await v28Imgs();const o=$("v28imgs");if(o)o.scrollIntoView({block:"start",behavior:"smooth"})}catch(e){alert("Impossible d'ajouter cette image.")}}
+async function v28Imgs(){const o=$("v28imgs");if(!o)return;const k=etHlKey(),L=v28ImgAll()[k]||[];if(!L.length){o.innerHTML="";return}let h=`<div class="card" style="margin-top:10px"><b>🖼️ Mes images · p. ${ETV.pg}</b>`;
+for(const x of L){let src="";try{src=await IDB.get("etpimg:"+x.id)}catch(e){}h+=`<div style="margin-top:10px">${src?`<img src="${src}" alt="${esc(x.cap||"Image ajoutée")}">`:`<div class="mut">Image introuvable sur cet appareil.</div>`}<input style="margin-top:6px" placeholder="Légende (ex. : exemple de fissure en escalier)" value="${esc(x.cap)}" oninput="v28ImgCap('${k}','${x.id}',this.value)"><button type="button" class="alt" style="margin-top:4px" onclick="v28ImgDel('${k}','${x.id}',this)">🗑️ Retirer</button></div>`}
+o.innerHTML=h+`</div>`}
+function v28ImgCap(k,id,v){const x=(v28ImgAll()[k]||[]).find(z=>z.id===id);if(!x)return;x.cap=v;clearTimeout(window.__v28ic);window.__v28ic=setTimeout(etSave,500)}
+function v28ImgDel(k,id,b){if(b.dataset.ok!=="1"){b.dataset.ok="1";b.textContent="⚠️ Touche encore pour retirer";setTimeout(()=>{if(b.isConnected){b.dataset.ok="";b.textContent="🗑️ Retirer"}},3500);return}const A=v28ImgAll(),L=A[k]||[],i=L.findIndex(z=>z.id===id);if(i>=0)L.splice(i,1);if(!L.length)delete A[k];try{const x=IDB.db.transaction("kv","readwrite");x.objectStore("kv").delete("etpimg:"+id)}catch(e){}etSave();v28Imgs()}
+
+/* ----- Panneau du bas (mode cours) : réduire / ajuster ----- */
+const _v28mcBar=mcBar;
+mcBar=function(){_v28mcBar();const o=$("etvc");if(!o)return;const Pn=S.et.mcp||(S.et.mcp={c:0,h:0});const inner=o.innerHTML;
+o.innerHTML=`<div class="mcgrip"><span class="mcg" id="mcg" role="separator" aria-label="Glisse pour ajuster la hauteur"></span><button type="button" class="alt mcbt" onclick="v28Panel()" aria-expanded="${!Pn.c}">${Pn.c?"▴ Ouvrir Lisa":"▾ Réduire"}</button></div><div id="mcbody" style="${Pn.c?"display:none":""}">${inner}</div>`;
+const row=o.querySelector("#mcbody .row");if(row)row.insertAdjacentHTML("beforeend",`<button class="alt" type="button" onclick="chatOpen()">💬 Parle à Lisa</button><label class="v28img">🖼️ Image<input type="file" accept="image/*" style="display:none" onchange="v28ImgAdd(this)"></label>`);
+v28PanelSize();v28Grip()};
+function v28PanelSize(){const o=$("etvc"),Pn=S.et.mcp||{};if(!o)return;if(Pn.c){o.style.height="";o.style.maxHeight="none";o.style.overflow="hidden"}else if(Pn.h){o.style.height=Pn.h+"px";o.style.maxHeight="85vh";o.style.overflow="auto"}else{o.style.height="";o.style.maxHeight="";o.style.overflow=""}}
+function v28Panel(){const Pn=S.et.mcp||(S.et.mcp={c:0,h:0});Pn.c=Pn.c?0:1;if(!Pn.c&&Pn.h&&Pn.h<140)Pn.h=0;etSave();mcBar()}
+function v28Grip(){const g=$("mcg"),o=$("etvc");if(!g||!o)return;let on=0;
+g.onpointerdown=e=>{e.preventDefault();on=1;g.setPointerCapture(e.pointerId)};
+g.onpointermove=e=>{if(!on)return;const Pn=S.et.mcp;const h=Math.round(Math.min(innerHeight*.85,Math.max(60,innerHeight-e.clientY)));if(Pn.c){Pn.c=0;const bd=$("mcbody");if(bd)bd.style.display=""}Pn.h=h;v28PanelSize()};
+g.onpointerup=()=>{if(!on)return;on=0;const Pn=S.et.mcp;if(Pn.h<110){Pn.c=1;Pn.h=0;etSave();mcBar();return}etSave();const b=o.querySelector(".mcbt");if(b){b.textContent="▾ Réduire";b.setAttribute("aria-expanded","true")}}}
+
+/* ----- Mode cours : reprendre à la dernière page ----- */
+const _v28mc=mcours;
+mcours=function(){let h=_v28mc();const M=S.mcs;if(M&&M.id&&M._lid!==M.id){M._lid=M.id;const d=etVMeta(M.id),L=d?(S.et.lastpg||{})[v28Key(d)]:null;if(L&&L.pg>1&&M.k<0&&(M.pg||1)===1){M.pg=L.pg;M.fd="📖 Tu étais rendu à la page "+L.pg+" dans ce document : la séance reprend là. Change la page si tu veux.";h=_v28mc()}}return h};
+
+/* ----- Révision par couleur ----- */
+function hlrev(){const col=S.hrc||(S.hrc="r"),A=etHlAll(),PN=v28PinsAll(),cnt={r:0,j:0,v:0},E=[];
+const sp=k=>{const i=k.lastIndexOf(":");return[k.slice(0,i),+k.slice(i+1)]};
+Object.keys(A).forEach(k=>{const[id,pg]=sp(k);(A[k]||[]).forEach(r=>{const c=r[4]||"v";cnt[c]=(cnt[c]||0)+1;if(c===col&&etVMeta(id))E.push({id,pg,r})})});
+Object.keys(PN).forEach(k=>{const[id,pg]=sp(k);(PN[k]||[]).forEach(p=>{const c=p.c||"r";cnt[c]=(cnt[c]||0)+1;if(c===col&&etVMeta(id))E.push({id,pg,pin:p})})});
+E.sort((a,b)=>a.id===b.id?a.pg-b.pg||((a.r||[0,0])[1]-(b.r||[0,0])[1]):String(a.id).localeCompare(String(b.id)));
+window.__hrE=E.slice(0,80);let last="";
+const items=window.__hrE.map((e,n)=>{const d=etVMeta(e.id),hd=e.id!==last?`<h2>📄 ${esc(etShortN(d?d.name:""))}</h2>`:"";last=e.id;
+return hd+`<div class="card"><div class="mut" style="font-size:12px">p. ${e.pg}${e.r&&e.r[5]==="u"?" · souligné":""}${e.pin?" · 📌 note":""}</div>${e.pin?`<div style="white-space:pre-wrap;margin-top:4px">${esc(e.pin.t)}</div>`:`<canvas id="hrc${n}" style="max-width:100%;display:block;margin-top:6px;border-radius:6px;background:#fff"></canvas><div id="hrt${n}" class="mut" style="margin-top:6px"></div>`}<div class="row" style="margin-top:6px"><button class="alt" type="button" onclick="v28Open('${e.id}',${e.pg})">📄 Ouvrir p. ${e.pg}</button></div></div>`}).join("");
+setTimeout(hrFill,0);
+return `<div class="row"><button class="alt" onclick="go('home')">← Accueil</button><button class="alt" onclick="go('mcours')">🎒 Mode cours</button></div><h1>🖍️ Mes surlignages</h1><div class="mut">Tous tes passages d'une même couleur, de tous tes documents. Parfait pour réviser avant un examen.</div>
+<div class="row" style="margin:10px 0;flex-wrap:wrap">${Object.keys(V28C).map(k=>`<button type="button" class="${col===k?"":"alt"}" onclick="S.hrc='${k}';render()">${V28C[k].e} ${V28C[k].n} (${cnt[k]||0})</button>`).join("")}</div>
+<div class="card" style="background:${V28C[col].f}"><b>${V28C[col].e} ${V28C[col].n}</b> : ${V28C[col].d}</div>
+${E.length?items+(E.length>80?`<div class="mut">Les 80 premiers passages sont affichés.</div>`:""):`<div class="card mut">Aucun passage en ${V28C[col].n.toLowerCase()} pour l'instant. Dans un document, touche 🖍️, choisis la couleur, puis glisse ton doigt sur une ligne.</div>`}`}
+async function hrFill(){const E=window.__hrE||[],cache={};let Lb=null;try{Lb=await etPdfLib()}catch(e){return}
+for(let n=0;n<E.length;n++){const e=E[n];if(e.pin)continue;const cv=$("hrc"+n);if(!cv)return;try{let doc=cache[e.id];if(!doc){const f=await IDB.get("etdoc:"+e.id);if(!f)continue;doc=cache[e.id]=await Lb.getDocument({data:await f.arrayBuffer()}).promise}
+const pg=await doc.getPage(e.pg),v=pg.getViewport({scale:2}),W=v.width,H=v.height,r=e.r,pad=.006,x0=Math.max(0,r[0]-pad),y0=Math.max(0,r[1]-pad*2),x1=Math.min(1,r[0]+r[2]+pad),y1=Math.min(1,r[1]+r[3]+pad*2);
+const full=document.createElement("canvas");full.width=W;full.height=H;await pg.render({canvasContext:full.getContext("2d"),viewport:v}).promise;
+const cw=Math.max(1,Math.round((x1-x0)*W)),chh=Math.max(1,Math.round((y1-y0)*H));cv.width=cw;cv.height=chh;cv.style.width=Math.min(cw/2,640)+"px";const x=cv.getContext("2d");x.drawImage(full,x0*W,y0*H,cw,chh,0,0,cw,chh);
+const C=V28C[r[4]||"v"];if(r[5]==="u"){x.fillStyle=C.s;x.fillRect((r[0]-x0)*W,(r[1]+r[3]-y0)*H-4,r[2]*W,4)}else{x.fillStyle=C.f;x.fillRect((r[0]-x0)*W,(r[1]-y0)*H,r[2]*W,r[3]*H)}
+try{const tc=await pg.getTextContent(),v1=pg.getViewport({scale:1}),out=[];tc.items.forEach(it=>{if(!it.str||!it.str.trim())return;const tx=it.transform[4]/v1.width,ty=1-it.transform[5]/v1.height,tw=it.width/v1.width;if(ty>=r[1]-.004&&ty<=r[1]+r[3]+.012&&tx+tw>=r[0]&&tx<=r[0]+r[2])out.push(it.str)});const t=$("hrt"+n);if(t)t.textContent=out.join(" ").replace(/\s+/g," ").trim()}catch(e2){}}catch(e){}}}
+
+/* ----- Sauvegarde : inclure les images ajoutées aux pages ----- */
+edSave=async function(){const o=$("edx");if(!o)return;if(!DL){o.textContent="L'enregistrement n'est pas disponible ici.";return}
+try{o.textContent="⏳ Préparation de la sauvegarde…";const ids=[];Object.values(S.et.docs||{}).forEach(L=>(L||[]).forEach(d=>ids.push(d)));
+const docs={},txt={},imgs={};let n=0,miss=0;for(const d of ids){n++;o.textContent="⏳ Document "+n+" sur "+ids.length+"…";const f=await IDB.get("etdoc:"+d.id);if(f){docs[d.id]={name:d.name,type:f.type||d.type||"",b64:await edB64(f)}}else miss++;const t=await IDB.get("etxt:"+d.id);if(t)txt[d.id]=t}
+for(const k of Object.keys(S.et.pimg||{}))for(const x of S.et.pimg[k]||[]){try{const v=await IDB.get("etpimg:"+x.id);if(v)imgs[x.id]=v}catch(e){}}
+const out=JSON.stringify({app:"Lisa-etudiant",v:2,at:new Date().toISOString(),et:S.et,docs,txt,imgs});
+await DL.save({filename:"lisa-mes-documents-"+new Date().toISOString().slice(0,10)+".json",data:new Blob([out],{type:"application/json"})});
+try{localStorage.setItem("lisa_edbk",new Date().toISOString())}catch(e){}
+const ni=Object.keys(imgs).length;o.textContent="✅ Sauvegarde enregistrée ("+Object.keys(docs).length+" document(s)"+(ni?", "+ni+" image(s)":"")+")."+(miss?" "+miss+" fichier(s) introuvable(s) n'ont pas pu être inclus.":"")+" Garde ce fichier dans un endroit sûr (Drive, courriel à toi-même)."}
+catch(e){if(!e||e.code!=="declined")o.textContent="Impossible de sauvegarder ("+((e&&(e.code||e.message))||"erreur")+").";else o.textContent=""}};
+const _v28edDo=edDo;
+edDo=async function(){const d=edPend;if(d&&d.imgs){for(const id of Object.keys(d.imgs)){try{await IDB.set("etpimg:"+id,d.imgs[id])}catch(e){}}}return _v28edDo()};
+
+/* ----- Rendu : nouvelles pages + bouton Parle à Lisa ----- */
+const V28V={hlrev:()=>hlrev(),exam:()=>exam()};
+const _v28render=render;
+render=function(){if(V28V[S.view]){bkTrack();if(NT.on)ntStop();if(typeof DICT!=="undefined"&&DICT)dictStop();AN=null;PH=[];MES=[];$("app").innerHTML=V28V[S.view]();tbar();bkBtn();aiPost();v28Fab();return}_v28render();v28Fab()};
+function v28Fab(){let b=$("lisafab");if(!b){b=document.createElement("button");b.id="lisafab";b.type="button";b.className="noprint";b.textContent="💬 Lisa";b.setAttribute("aria-label","Parle à Lisa");b.onclick=()=>chatOpen();document.body.appendChild(b)}
+const tb=$("tbar"),tOn=!!(tb&&tb.style.display!=="none");b.style.bottom="calc("+(tOn?72:14)+"px + env(safe-area-inset-bottom,0px))";b.style.display=aiOff()?"none":""}
+
+/* ----- Accueil étudiant et bibliothèque : nouveaux accès ----- */
+const _v28he=homeEtu;
+homeEtu=function(){let h=_v28he();
+h=h.replace(/(<button class="tile rbt r4" onclick="go\('qa'\)">[\s\S]*?<\/button>)/,"$1"+`<button class="tile rbt r5" onclick="exNew()"><span>🎯</span>Examen blanc<small>QCM tirés de tes recueils</small></button><button class="tile rbt r6" onclick="chatOpen()"><span>💬</span>Parle à Lisa<small>écris ou dicte ta demande</small></button>`);
+h=h.replace(/(<button class="rbrow" onclick="go\('bib'\)">[\s\S]*?<\/button>)/,"$1"+`<button class="rbrow" onclick="bnqOpen(0)"><span class="rbic r2">🗂️</span><span>Banque de constats BNQ<small>causes, effets et articles de la norme</small></span><span class="rbgo">›</span></button><button class="rbrow" onclick="go('hlrev')"><span class="rbic r1">🖍️</span><span>Mes surlignages<small>révision par couleur</small></span><span class="rbgo">›</span></button>`);return h};
+const _v28bib=bib;
+bib=function(){const h=_v28bib();return h.replace(`<button onclick="libNew()">➕ Nouveau modèle</button>`,`<button onclick="libNew()">➕ Nouveau modèle</button><button class="alt" onclick="bnqOpen(0)">🗂️ Banque de constats BNQ</button>`)};
+const _v28libOv=libOv;
+libOv=function(){const h=_v28libOv();return h.replace(`<h1>📚 Mes modèles</h1>`,`<h1>📚 Mes modèles</h1><div class="row" style="margin:6px 0"><button type="button" onclick="bnqOpen(1)">🗂️ Banque de constats BNQ</button></div>`)};
+
+/* ----- Banque de constats BNQ ----- */
+let BNQ=null;
+async function bnqLoad(){if(BNQ)return BNQ;const r=await fetch("constats-bnq.json");if(!r.ok)throw new Error("absent");BNQ=await r.json();return BNQ}
+const BQT={"Vice apparent":["#fed7aa","VA"],"Indice de déficience":["#fef08a","ID"],"Risque pour la sécurité ou l'intégrité physique":["#fecaca","RS"],"Possibilité de risque pour la sécurité ou l'intégrité physique":["#f5d0fe","PR"],"Condition empêchant l'inspection (7.1.2)":["#e5e7eb","7.1.2"]};
+const BQS={"Fondations":"Structure","Charpente":"Structure","Planchers":"Structure","Vide sanitaire":"Structure","Terrain et drainage":"Extérieur","Balcons et escaliers extérieurs":"Extérieur","Revêtement extérieur":"Extérieur","Portes et fenêtres":"Extérieur","Soffites et fascias":"Extérieur","Garage attenant":"Extérieur","Toiture":"Toiture","Cheminée":"Toiture","Entretoit":"Isolation / ventilation","Isolation et humidité":"Isolation / ventilation","Ventilation":"Isolation / ventilation","Plomberie":"Plomberie","Électricité":"Électricité","Chauffage":"Chauffage","Intérieur":"Intérieur","Sécurité":"Intérieur"};
+async function bnqOpen(pick){let o=$("bnqov");if(!o){o=document.createElement("div");o.id="bnqov";o.setAttribute("role","dialog");o.setAttribute("aria-label","Banque de constats BNQ");document.body.appendChild(o)}S.bq=Object.assign({q:"",sys:"",typ:"",n:25},S.bq||{},{pick:pick?1:0,n:25});o.innerHTML='<div class="mut">⏳ Chargement de la banque…</div>';
+try{await bnqLoad();bnqDraw()}catch(e){o.innerHTML=`<div class="row"><button class="alt" onclick="bnqClose()">✕ Fermer</button></div><div class="card">La banque de constats n'a pas pu être chargée. Ouvre Lisa une fois avec Internet pour la garder sur ton appareil.</div>`}}
+function bnqClose(){const o=$("bnqov");if(o)o.remove()}
+function bnqF(){const B=S.bq,q=etNorm(B.q||"").split(/\s+/).filter(w=>w.length>1);return BNQ.filter(x=>(!B.sys||x.systeme===B.sys)&&(!B.typ||x.type_bnq===B.typ)&&(!q.length||q.every(w=>etNorm([x.id,x.systeme,x.composant,x.constat,x.article_bnq,x.indices,x.effets].join(" ")).includes(w))))}
+function bnqDraw(keep){const o=$("bnqov");if(!o||!BNQ)return;const B=S.bq,L=bnqF(),sys=[...new Set(BNQ.map(x=>x.systeme))].sort(),y=o.scrollTop;
+o.innerHTML=`<div class="row"><button class="alt" type="button" onclick="bnqClose()">✕ Fermer</button></div><h1>🗂️ Banque de constats BNQ</h1>
+<div class="card" style="background:var(--bg)"><div class="mut"><b>À savoir.</b> ${BNQ.length} constats ajustés à la norme BNQ 3009-500 (type de constat et article). Les mesures et les endroits sont des exemples : adapte-les à ce que tu observes. La colonne « Causes » sert à comprendre : l'inspection ne détermine pas les causes (annexe A k). L'étape « Rôle de la composante » est à écrire avec tes mots.</div></div>
+<label for="bqq">Chercher</label><input id="bqq" value="${esc(B.q)}" placeholder="ex. : fissure, DDFT, solin, 12.4.2" oninput="S.bq.q=this.value;S.bq.n=25;clearTimeout(window.__bqt);window.__bqt=setTimeout(()=>{bnqDraw(1)},250)">
+<label for="bqs">Système</label><select id="bqs" onchange="S.bq.sys=this.value;S.bq.n=25;bnqDraw()"><option value="">Tous</option>${sys.map(s=>`<option ${s===B.sys?"selected":""}>${esc(s)}</option>`).join("")}</select>
+<label for="bqt">Type (BNQ)</label><select id="bqt" onchange="S.bq.typ=this.value;S.bq.n=25;bnqDraw()"><option value="">Tous</option>${Object.keys(BQT).map(s=>`<option ${s===B.typ?"selected":""}>${esc(s)}</option>`).join("")}</select>
+<div class="mut" style="margin:8px 0">${L.length} constat${L.length>1?"s":""}</div>
+${L.slice(0,B.n).map(x=>{const t=BQT[x.type_bnq]||["#e5e7eb",""];return `<details class="card"><summary><span class="bqpill" style="background:${t[0]};color:#222">${esc(t[1])}</span><span class="mut" style="font-size:12px">${esc(x.id)} · ${esc(x.systeme)} · art. ${esc(x.article_bnq)}</span><br><b>${esc(x.composant)}</b> — ${esc(x.constat)}</summary>
+<div style="margin-top:8px"><p><b>Type (BNQ) :</b> ${esc(x.type_bnq)} · <b>Article :</b> ${esc(x.article_bnq)}</p><p><b>👀 Indices observés :</b> ${esc(x.indices)}</p><p><b>🧠 Causes (pour comprendre) :</b> ${esc(x.causes)}</p><p><b>➡️ Effets :</b> ${esc(x.effets)}</p><p><b>✅ Recommandation :</b> ${esc(x.recommandation)}</p><p class="mut" style="font-size:13px">📚 ${esc(x.reference)}</p><p class="mut" style="font-size:13px">Priorité (aide à l'étude) : ${esc(x.priorite)}</p>
+<div class="row">${B.pick?`<button type="button" onclick="bnqUse('${x.id}')">Utiliser dans mon constat</button>`:""}<button class="alt" type="button" onclick="bnqCopy('${x.id}',this)">➕ Copier dans mes modèles</button></div></div></details>`}).join("")}
+${L.length>B.n?`<button class="alt" type="button" style="width:100%" onclick="S.bq.n+=25;bnqDraw(1)">Voir plus (${L.length-B.n} autres)</button>`:""}`;
+if(keep){o.scrollTop=y;const i=$("bqq");if(i&&document.activeElement!==i&&S.bq.q){i.focus();i.setSelectionRange(i.value.length,i.value.length)}}}
+function bnqUse(id){const x=(BNQ||[]).find(z=>z.id===id);if(!x)return;const set=(k,v)=>{const e=$(k);if(e&&v&&!e.value.trim())e.value=v};set("c1",x.composant);set("c2",x.constat);set("c3",x.effets);set("c4",x.recommandation);bnqClose();libClose();const b=$("chkx");if(b)b.textContent="Constat de la banque inséré dans les champs vides. Écris le rôle de la composante avec tes mots et adapte le texte à ce que tu observes vraiment.";const e=$("cr");if(e){e.scrollIntoView({block:"center"});e.focus()}}
+function bnqCopy(id,b){const x=(BNQ||[]).find(z=>z.id===id);if(!x)return;libAll().push({id:libId(),sec:BQS[x.systeme]||"",t:(x.composant+" — "+x.constat).slice(0,70),comp:x.composant,ano:x.constat,role:"",cons:x.effets,rec:x.recommandation,n:"Banque BNQ "+x.id+" · "+x.type_bnq+" · art. "+x.article_bnq});etSave();if(b){b.textContent="✓ Copié dans mes modèles";b.disabled=true}}
+
+/* ----- Examen blanc ----- */
+function exCourses(){return ETU_COURS.filter(c=>(S.et.docs[c.id]||[]).some(d=>d.an))}
+function exNew(pre,n){S.exs={sel:Object.assign({},pre||{}),n:n||(S.exs&&S.exs.n)||40};if(!pre){const c=exCourses();if(c.length===1)S.exs.sel[c[0].id]=true}S.exv="setup";go("exam")}
+function exam(){const s=S.exs||(S.exs={sel:{},n:40}),X=S.et.exc,H=S.et.exh||[],v=S.exv||(X&&!X.done?"run":X&&X.done?"res":"setup");
+if(v==="run"&&X&&!X.done)return exRun(X);if(v==="res"&&X&&X.done)return exRes(X);
+const C=exCourses(),noai=!AI||aiOff();
+return `<div class="row"><button class="alt" onclick="go('home')">← Accueil</button></div><h1>🎯 Examen blanc</h1><div class="mut">Lisa prépare des questions à choix de réponse tirées de tes recueils, comme à l'examen. À la fin : ta note, l'explication de chaque erreur et la page du recueil à relire.</div>
+${X&&!X.done?`<div class="card" style="border-color:var(--pri)"><b>▶️ Examen en cours</b><div class="mut">${X.qs.length} questions · ${Object.keys(X.ans).length} répondues</div><div class="row" style="margin-top:8px"><button onclick="S.exv='run';render()">Reprendre</button></div></div>`:""}
+${noai?`<div class="card" style="border-color:#e8590c"><b>L'examen blanc demande l'IA.</b><div class="mut">Ouvre Lisa depuis claude.ai et choisis « 🤖 Avec IA » sur l'accueil.</div></div>`:""}
+<div class="card"><b>1. Cours</b>${C.length?C.map(c=>`<label style="display:flex;gap:8px;align-items:center;margin:8px 0;font-weight:400"><input type="checkbox" style="width:auto" ${s.sel[c.id]?"checked":""} onchange="S.exs.sel['${c.id}']=this.checked"> ${c.ic} ${esc(c.nom)} <small class="mut">(${(S.et.docs[c.id]||[]).filter(d=>d.an).length} doc.)</small></label>`).join(""):`<div class="mut" style="margin-top:6px">Aucun recueil analysé pour l'instant. Ouvre un cours et ajoute ton recueil dans « Mes documents ».</div>`}
+<b style="display:block;margin-top:8px">2. Nombre de questions</b><div class="row" style="margin-top:6px">${[10,20,40].map(n=>`<button type="button" class="${s.n===n?"":"alt"}" onclick="S.exs.n=${n};render()">${n}</button>`).join("")}</div>
+<div class="row" style="margin-top:12px"><button ${noai||!C.length?"disabled":""} onclick="exGen()">🎯 Préparer mon examen</button></div><div id="exg" class="mut" aria-live="polite" style="margin-top:8px"></div>
+<div class="mut" style="font-size:12px;margin-top:6px">Les questions sont faites par une IA à partir de tes recueils : si une réponse te semble fausse, vérifie à la page indiquée et avec ton enseignant. Ce n'est pas le vrai examen.</div></div>
+${H.length?`<h2>Mes examens blancs</h2>`+H.slice(0,10).map(x=>`<div class="card"><b>${x.sc}/${x.n} · ${Math.round(x.sc*100/x.n)} %</b> <span class="mut">· ${new Date(x.at).toLocaleDateString("fr-CA")} · ${esc(x.cids.map(id=>(etC(id)||{}).nom||"").join(", "))}</span></div>`).join(""):""}
+${X&&X.done?`<div class="row"><button class="alt" onclick="S.exv='res';render()">📊 Revoir mon dernier examen</button></div>`:""}`}
+async function exGen(){const s=S.exs,o=$("exg");if(!o)return;if(!AI||aiOff()){o.textContent="L'IA n'est pas disponible ici.";return}const cids=Object.keys(s.sel).filter(k=>s.sel[k]&&etC(k));if(!cids.length){o.textContent="Coche au moins un cours.";return}
+o.textContent="⏳ Lisa lit tes recueils…";const pool={};
+for(const cid of cids){pool[cid]=[];for(const d of (S.et.docs[cid]||[]).filter(d=>d.an)){let P=null;try{P=await IDB.get("etxt:"+d.id)}catch(e){}if(Array.isArray(P))P.forEach((t,i)=>{if(t&&t.trim().length>300&&(t.match(/\.{6,}/g)||[]).length<3)pool[cid].push({cid,id:d.id,doc:d.name,page:i+1,text:t})})}pool[cid].sort(()=>Math.random()-.5)}
+const ok=cids.filter(c=>pool[c].length);if(!ok.length){o.textContent="Je ne trouve pas assez de texte dans ces recueils.";return}
+const N=s.n,B=8,qs=[];let rr=0,tries=0;
+while(qs.length<N&&tries<Math.ceil(N/B)+3){tries++;const k=Math.min(B,N-qs.length),pages=[];for(let j=0;j<5;j++){const c=ok[rr++%ok.length],p=pool[c].shift();if(p){pages.push(p);pool[c].push(p)}}
+o.textContent="⏳ Lisa prépare les questions… "+qs.length+" / "+N;
+const pr="Tu prépares un examen blanc pour un étudiant d'une AEC en inspection de bâtiment au Québec. Crée exactement "+k+" questions à choix de réponse (4 choix, une seule bonne réponse), basées UNIQUEMENT sur les extraits ci-dessous de ses recueils de cours. Style d'un vrai examen de cours : définitions, exigences, rôles des lois et des organismes, étapes, nuances importantes. Varie la difficulté. Les mauvais choix doivent être plausibles et de même longueur que la bonne réponse. Pas de « toutes ces réponses » ni « aucune de ces réponses ». N'invente rien qui n'est pas dans les extraits. Français simple et clair.\n\n"+pages.map((p,i)=>"[E"+(i+1)+"]\n"+p.text.slice(0,1800)).join("\n\n")+"\n\nRéponds uniquement avec du JSON de cette forme : {\"questions\":[{\"q\":\"énoncé\",\"choix\":[\"…\",\"…\",\"…\",\"…\"],\"bonne\":0,\"explication\":\"pourquoi c'est la bonne réponse, 1 ou 2 phrases simples\",\"source\":\"E1\"}]}";
+try{const r=await AI.json(pr),L=(r&&r.questions)||[];L.forEach(x=>{if(!x||!x.q||!Array.isArray(x.choix)||x.choix.length!==4||!(x.bonne>=0&&x.bonne<4)||qs.length>=N)return;const m=String(x.source||"").match(/\d+/),p=pages[(m?+m[0]:1)-1]||pages[0],ord=[0,1,2,3].sort(()=>Math.random()-.5);
+qs.push({q:String(x.q),c:ord.map(i=>String(x.choix[i])),a:ord.indexOf(+x.bonne),e:String(x.explication||""),id:p.id,doc:p.doc,page:p.page,cid:p.cid})})}catch(e){o.textContent="⚠ "+aiErr(e);if(e&&e.code==="rate_limited"&&qs.length)break;if(!qs.length)return}}
+if(!qs.length){o.textContent="Je n'ai pas réussi à préparer les questions. Réessaie.";return}
+S.et.exc={id:Date.now(),cids,qs,i:0,ans:{},t0:Date.now(),done:0};etSave();S.exv="run";render()}
+function exRun(X){const i=X.i,q=X.qs[i],a=X.ans[i],n=X.qs.length,dn=Object.keys(X.ans).length;
+return `<div class="row"><button class="alt" onclick="S.exv='setup';render()">← Examen blanc</button></div><h1>🎯 Question ${i+1} / ${n}</h1><div class="exbar"><span style="width:${Math.round(dn*100/n)}%"></span></div><div class="mut" style="font-size:12px">${dn} répondue${dn>1?"s":""} sur ${n}</div>
+<div class="card"><b style="font-size:17px">${esc(q.q)}</b><div style="margin-top:8px">${q.c.map((c,j)=>`<button type="button" class="exch${a===j?" sel":""}" onclick="exPick(${j})"><b>${String.fromCharCode(65+j)}.</b><span>${esc(c)}</span></button>`).join("")}</div></div>
+<div class="row" style="margin-top:6px"><button class="alt" ${i?"":"disabled"} onclick="exMove(-1)">◀ Précédente</button>${i<n-1?`<button onclick="exMove(1)">Suivante ▶</button>`:""}<button class="warn" onclick="exEnd(this)">🏁 Terminer et corriger</button></div>
+<div class="row" style="margin-top:6px;flex-wrap:wrap">${X.qs.map((_,j)=>`<button type="button" class="${j===i?"":"alt"}" style="padding:4px 8px;min-width:34px;font-size:12px;${X.ans[j]!==undefined&&j!==i?"opacity:.55":""}" onclick="S.et.exc.i=${j};etSave();render()">${j+1}</button>`).join("")}</div>`}
+function exPick(j){const X=S.et.exc;X.ans[X.i]=j;etSave();if(X.i<X.qs.length-1)setTimeout(()=>exMove(1),180);else render()}
+function exMove(d){const X=S.et.exc;X.i=Math.min(X.qs.length-1,Math.max(0,X.i+d));etSave();render();scrollTo(0,0)}
+function exEnd(b){const X=S.et.exc,n=X.qs.length,dn=Object.keys(X.ans).length;if(dn<n&&b.dataset.ok!=="1"){b.dataset.ok="1";b.textContent="⚠️ "+(n-dn)+" sans réponse. Touche encore pour corriger";return}
+X.done=1;X.sc=X.qs.reduce((s,q,i)=>s+(X.ans[i]===q.a?1:0),0);X.t1=Date.now();const H=S.et.exh||(S.et.exh=[]);H.unshift({at:Date.now(),cids:X.cids,n,sc:X.sc});if(H.length>30)H.length=30;etSave();S.exv="res";render();scrollTo(0,0)}
+function exRes(X){const n=X.qs.length,pc=Math.round(X.sc*100/n),bad=X.qs.map((q,i)=>({q,i})).filter(z=>X.ans[z.i]!==z.q.a),by={};X.qs.forEach((q,i)=>{const k=q.cid;by[k]=by[k]||{n:0,ok:0};by[k].n++;if(X.ans[i]===q.a)by[k].ok++});
+return `<div class="row"><button class="alt" onclick="S.exv='setup';render()">← Examen blanc</button></div><h1>📊 Résultat</h1>
+<div class="card" style="text-align:center"><div style="font-size:40px;font-weight:800">${X.sc} / ${n}</div><div style="font-size:20px">${pc} %</div><div class="exbar"><span style="width:${pc}%;background:${pc>=80?"#16a34a":pc>=60?"#ca8a04":"#dc2626"}"></span></div><div class="mut">${pc>=80?"Excellent, tu maîtrises bien la matière.":pc>=60?"Bon travail. Relis les pages de tes erreurs.":"Prends le temps de relire les pages de tes erreurs, puis refais un examen."}</div></div>
+${Object.keys(by).length>1?`<div class="card"><b>Par cours</b>${Object.keys(by).map(k=>`<div style="margin-top:4px">${esc((etC(k)||{}).nom||k)} : <b>${by[k].ok}/${by[k].n}</b></div>`).join("")}</div>`:""}
+<div class="row" style="margin:8px 0;flex-wrap:wrap">${bad.length?`<button onclick="exRedo()">🔁 Refaire seulement mes erreurs (${bad.length})</button>`:""}<button class="alt" onclick="exNew(Object.fromEntries(S.et.exc.cids.map(c=>[c,true])),${n})">🎯 Nouvel examen</button></div>
+<h2>${bad.length?"❌ Mes erreurs":"🎉 Aucune erreur"}</h2>${bad.map(({q,i})=>exCard(q,X.ans[i],i)).join("")}
+${bad.length<n?`<details class="card"><summary><b>✅ Mes bonnes réponses (${n-bad.length})</b></summary>${X.qs.map((q,i)=>X.ans[i]===q.a?exCard(q,X.ans[i],i):"").join("")}</details>`:""}`}
+function exCard(q,a,i){return `<div class="card"><div class="mut" style="font-size:12px">Question ${i+1}</div><b>${esc(q.q)}</b><div style="margin-top:6px">${q.c.map((c,j)=>`<div class="exch ${j===q.a?"ok":j===a?"ko":""}" style="cursor:default"><b>${String.fromCharCode(65+j)}.</b><span>${esc(c)}${j===q.a?" ✅":j===a?" ← ta réponse":""}</span></div>`).join("")}</div>${a===undefined?`<div class="mut">Pas de réponse.</div>`:""}<p style="margin-top:6px">💡 ${esc(q.e)}</p><div class="row"><button class="alt" type="button" onclick="v28Open('${q.id}',${q.page})">📄 Relire : ${esc(etShortN(q.doc))} · p. ${q.page}</button></div></div>`}
+function exRedo(){const X=S.et.exc,qs=X.qs.filter((q,i)=>X.ans[i]!==q.a);S.et.exc={id:Date.now(),cids:X.cids,qs,i:0,ans:{},t0:Date.now(),done:0};etSave();S.exv="run";render();scrollTo(0,0)}
+
+/* ----- Parle à Lisa ----- */
+function chatOpen(pre){let o=$("lchat");if(!o){o=document.createElement("div");o.id="lchat";o.setAttribute("role","dialog");o.setAttribute("aria-label","Parle à Lisa");document.body.appendChild(o);
+o.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest(".rbref button,.rbref a");if(t&&t.tagName==="BUTTON")setTimeout(chatClose,0)},true)}
+o.innerHTML=`<div style="display:flex;gap:8px;align-items:center;padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top,0px));border-bottom:1px solid var(--line);background:var(--card)"><b style="flex:1">💬 Parle à Lisa</b>${(S.et.chat||[]).length?`<button class="alt" type="button" onclick="chatClear(this)">🗑️ Effacer</button>`:""}<button type="button" onclick="chatClose()">✕ Fermer</button></div><div class="lcm" id="lcm"></div>
+<div class="lcin"><textarea id="lcq" rows="2" placeholder="Ex. : Prépare-moi pour mon examen de lois, codes et normes" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chatSend()}"></textarea>${dictBtn("lcq")}<div class="row" style="margin-top:6px"><button type="button" onclick="chatSend()">➤ Envoyer</button></div></div>`;
+chatDraw();const q=$("lcq");if(q){if(pre)q.value=pre;q.focus()}}
+function chatClose(){if(typeof DICT!=="undefined"&&DICT&&DICT.id==="lcq")dictStop();const o=$("lchat");if(o)o.remove()}
+function chatClear(b){if(b.dataset.ok!=="1"){b.dataset.ok="1";b.textContent="Touche encore";return}S.et.chat=[];etSave();chatOpen()}
+function chatDraw(){const m=$("lcm");if(!m)return;const L=S.et.chat||[];
+m.innerHTML=(L.length?"":`<div class="card"><b>Salut! Je suis Lisa.</b><div class="mut" style="margin-top:4px">Demande-moi ce que tu veux sur tes cours. Exemples :</div>${["Prépare-moi pour mon examen de lois, codes et normes","Explique-moi la différence entre un vice apparent et un indice de déficience","C'est quoi le rôle d'un linteau?"].map(x=>`<button class="alt" type="button" style="width:100%;text-align:left;margin-top:6px" onclick="$('lcq').value=this.textContent;chatSend()">${esc(x)}</button>`).join("")}</div>`)+
+L.map((x,i)=>x.r==="u"?`<div class="lcb lcu">${esc(x.t)}</div>`:`<div class="lcb lca">${esc(x.t)}${x.act?chatAct(x.act):""}${x.refs||x.vq?etRefBox(x.refs||[],x.vq,x.q||"",{t:x.t,nodoc:1}):""}</div>`).join("")+(window.__lcw?`<div class="lcb lca mut">⏳ Lisa réfléchit…</div>`:"");m.scrollTop=m.scrollHeight}
+function chatAct(a){if(a.k!=="exam")return "";const nm=Object.keys(a.sel||{}).map(id=>(etC(id)||{}).nom).filter(Boolean);return `<div style="margin-top:8px"><button type="button" onclick='chatClose();exNew(${JSON.stringify(a.sel||{})},${a.n||40})'>🎯 Préparer mon examen blanc${nm.length?" : "+esc(nm.join(" + ")):""} (${a.n||40} questions)</button></div>`}
+function chatIntent(t){const n=etNorm(t);if(!/examen|exam|prepar|reviser|revision|quiz|choix de reponse/.test(n))return null;const sel={};ETU_COURS.forEach(c=>{if(n.includes(etNorm(c.nom)))sel[c.id]=true});if(/\bloi/.test(n)){const c=ETU_COURS.find(x=>x.id==="loi");if(c)sel.loi=true}if(/codes? et normes?|\bnormes?\b/.test(n)){if(etC("lcn"))sel.lcn=true}const m=n.match(/(\d{1,2})\s*questions?/);let k=m?+m[1]:40;k=k<=10?10:k<=20?20:40;return{k:"exam",sel,n:k}}
+async function chatSend(){const q=$("lcq"),t=(q&&q.value||"").trim();if(!t||window.__lcw)return;if(typeof DICT!=="undefined"&&DICT)dictStop();q.value="";const L=S.et.chat||(S.et.chat=[]);L.push({r:"u",t});if(L.length>40)L.splice(0,L.length-40);window.__lcw=1;chatDraw();
+let pk=[];try{pk=await etPick(etAllG(),t,5)}catch(e){}let page="";try{if($("etvw")&&ETV.id&&ETV.kind!=="img"){const P=await IDB.get("etxt:"+ETV.id);const pt=Array.isArray(P)?P[ETV.pg-1]:"";if(pt)page="\nL'étudiant a présentement devant lui la page "+ETV.pg+" de « "+etShortN(ETV.name)+" » :\n« "+pt.slice(0,2500)+" »\n"}}catch(e){}
+const cs=ETU_COURS.map(c=>c.nom+" ("+c.st+(((S.et.docs[c.id]||[]).some(d=>d.an))?", recueil ajouté":"")+")").join("; "),hist=L.slice(-7,-1).map(x=>(x.r==="u"?"Étudiant : ":"Lisa : ")+x.t.slice(0,600)).join("\n"),act=chatIntent(t);
+const pr="Tu es Lisa, une tutrice patiente et chaleureuse pour un étudiant francophone (Québec) d'une AEC en inspection de bâtiment. Tu tutoies, ton ton est amical et simple.\nSes cours : "+cs+".\n"+page+"\n"+etPages(pk)+"\n\n"+(hist?"Conversation récente :\n"+hist+"\n\n":"")+"Message de l'étudiant : « "+t+" »\n\n"+(act?"Il veut se préparer à un examen. Dans Lisa, un bouton apparaîtra sous ta réponse pour lancer un examen blanc à choix de réponse tiré de ses recueils (avec correction, explications et pages à relire). Donne-lui en 120 à 200 mots un plan d'étude concret : les grands thèmes à revoir d'après les extraits, 3 trucs pour les questions à choix de réponse, et invite-le à lancer l'examen blanc. ":"Réponds en 60 à 200 mots selon la question. ")+ETRULES+ETVID;
+try{const r=await etAI(pr);const t0=(r.text||"").trim();L.push(r.copied?{r:"a",t:t0}:{r:"a",t:etStripV(t0),vq:etVidQ(t0),refs:etRefList(pk),q:t,act})}catch(e){L.push({r:"a",t:"⚠ "+aiErr(e),act})}
+window.__lcw=0;etSave();chatDraw()}
+
+const _v28rb=etRefBox;
+etRefBox=function(){return _v28rb.apply(null,arguments).replace("le passage est surligné en jaune","le passage est surligné en bleu")};
+
 </script></body></html>
 
 </body></html>
