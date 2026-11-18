@@ -1,6 +1,6 @@
 /* Service worker de Lisa : permet l'utilisation sans réseau. */
-const CACHE="lisa-v28";
-const LOCAL=["./","index.html","manifest.webmanifest","constats-bnq.json","icons/icon-192.png","icons/icon-512.png","icons/icon-maskable-512.png"];
+const CACHE="lisa-v30";
+const LOCAL=["./","index.html","manifest.webmanifest","icons/icon-192.png","icons/icon-512.png","icons/icon-maskable-512.png"];
 const LIBS=["https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js","https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js","https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js","https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"];
 self.addEventListener("install",e=>{e.waitUntil((async()=>{const c=await caches.open(CACHE);
 await Promise.all(LOCAL.map(u=>c.add(new Request(u,{cache:"reload"})).catch(()=>{})));
