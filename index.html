@@ -111,7 +111,7 @@ function homeInsp(){const n=S.list.filter(i=>i.status==="en cours").length;retur
 <button class="big" onclick="newInsp()">✨ Nouvelle inspection</button>
 <button class="big alt" onclick="S.cur=(S.list.find(i=>i.status==='en cours')||{}).id;S.cur?go('tour'):alert('Aucune inspection en cours.')">🔄 Inspection en cours <span class="pill">${n}</span></button>
 <button class="big alt" onclick="go('old')">📂 Anciennes inspections</button>
-<h2>Gestion</h2><div class="grid2"><button class="tile" onclick="go('feu')"><span>🔥</span>Réglementation feu<small>DRF, portes, avertisseurs</small></button><button class="tile" onclick="go('agenda')"><span>📅</span>Agenda des visites</button><button class="tile" onclick="go('clients')"><span>👥</span>Clients</button><button class="tile" onclick="go('factures')"><span>🧾</span>Facturation</button><button class="tile" onclick="go('trad')"><span>🌐</span>Traducteur FR / EN</button><button class="tile" onclick="go('profil')"><span>👤</span>Mon profil<small>logo, sceau, signature</small></button><button class="tile" onclick="go('calc')"><span>🧮</span>Calculatrice<small>et convertisseur</small></button><button class="tile" onclick="go('lexique')"><span>📖</span>Lexique FR / EN<small>termes de l'inspection</small></button><button class="tile" onclick="openRg('home')"><span>🏛️</span>Quel code s'applique ?<small>régime et partie du Code</small></button><button class="tile" onclick="openNotes('home')"><span>🎙️</span>Notes vocales<small>${(S.nt||[]).length?(S.nt.length+" note"+(S.nt.length>1?"s":"")):"dicte, ça s'écrit en note"}</small></button></div>${bkCard()}<p class="mut">Prototype : tes données restent sur cet appareil. Aucune estimation de coûts de réparation n'est produite.</p><p class="mut" style="font-size:12px">Version 33 · 18 nov. 2026</p>`}
+<h2>Gestion</h2><div class="grid2"><button class="tile" onclick="go('feu')"><span>🔥</span>Réglementation feu<small>DRF, portes, avertisseurs</small></button><button class="tile" onclick="go('agenda')"><span>📅</span>Agenda des visites</button><button class="tile" onclick="go('clients')"><span>👥</span>Clients</button><button class="tile" onclick="go('factures')"><span>🧾</span>Facturation</button><button class="tile" onclick="go('trad')"><span>🌐</span>Traducteur FR / EN</button><button class="tile" onclick="go('profil')"><span>👤</span>Mon profil<small>logo, sceau, signature</small></button><button class="tile" onclick="go('calc')"><span>🧮</span>Calculatrice<small>et convertisseur</small></button><button class="tile" onclick="go('lexique')"><span>📖</span>Lexique FR / EN<small>termes de l'inspection</small></button><button class="tile" onclick="openRg('home')"><span>🏛️</span>Quel code s'applique ?<small>régime et partie du Code</small></button><button class="tile" onclick="openNotes('home')"><span>🎙️</span>Notes vocales<small>${(S.nt||[]).length?(S.nt.length+" note"+(S.nt.length>1?"s":"")):"dicte, ça s'écrit en note"}</small></button></div>${bkCard()}<p class="mut">Prototype : tes données restent sur cet appareil. Aucune estimation de coûts de réparation n'est produite.</p><p class="mut" style="font-size:12px">Version 36 · 18 nov. 2026</p>`}
 function old(){const q=S.q.toLowerCase();const l=S.list.filter(i=>i.status!=="en cours"&&(i.client.nom+" "+i.client.adresse).toLowerCase().includes(q));
 setTimeout(()=>{const s=$("q");if(s)s.oninput=e=>{S.q=e.target.value;render();$("q").focus()}},0);
 return `<button class="alt" onclick="go('home')">← Accueil</button><h2>Anciennes inspections</h2><input id="q" placeholder="Chercher par nom ou adresse" value="${esc(S.q)}">`+(l.length?l.map(i=>`<div class="card"><b>${esc(i.client.nom)||"Sans nom"}</b><div class="mut">${esc(i.client.adresse)} · ${new Date(i.created).toLocaleDateString("fr-CA")} · ⏱ ${tfmt(tel(i))}</div><div class="row" style="margin-top:8px"><button class="alt" onclick="openInsp(${i.id},'report')">Voir le rapport</button><button class="warn" onclick="askEdit(${i.id})">Modifier</button></div>${i.modifs.length?`<div class="mut">Modifié ${i.modifs.length} fois (dernière : ${new Date(i.modifs.at(-1)).toLocaleString("fr-CA")})</div>`:""}</div>`).join(""):`<p class="mut">Aucun rapport archivé pour l'instant. Termine une inspection pour la retrouver ici.</p>`)}
@@ -758,7 +758,7 @@ const ETREFS=[
 ["Glossaire des termes d'habitation (SCHL)","gratuit","Tu l'as déjà.",null]];
 const etMois=d=>Math.floor((Date.now()-new Date(d).getTime())/2629800000);
 function etEd(cid,id,v){const d=(S.et.docs[cid]||[]).find(x=>x.id===id);if(d){d.ed=v;etSave()}}
-function etDest(cid){return `<select onchange="if(this.value)etMove('${cid}',this.dataset.id,this.value)" data-id="" aria-label="Déplacer vers"><option value="">Déplacer vers…</option>${cid!=="ref"?`<option value="ref">📚 Références</option>`:""}${ETU_COURS.filter(x=>x.id!==cid).map(x=>`<option value="${x.id}">${esc(x.ic+" "+x.nom)}</option>`).join("")}</select>`}
+function etDest(cid){return `<select onchange="if(this.value)etMove('${cid}',this.dataset.id,this.value)" data-id="" aria-label="Déplacer vers"><option value="">📂 Déplacer dans un autre cours…</option>${cid!=="ref"?`<option value="ref">📚 Références</option>`:""}${ETU_COURS.filter(x=>x.id!==cid).map(x=>`<option value="${x.id}">${esc(x.ic+" "+x.nom)}</option>`).join("")}</select>`}
 function etDocs(cid){const dc=S.et.docs[cid]||[];return `<div class="card"><label for="etf">Ajouter des fichiers (PDF, Word, photos, notes…)</label><input id="etf" type="file" multiple onchange="etAdd('${cid}',this)"><div class="mut" style="margin:6px 0">Tes fichiers restent seulement sur cet appareil. Un PDF est analysé automatiquement : Lisa en lit le texte sur ton appareil.</div><div id="etst" class="mut"></div>${dc.length?dc.map(d=>`<div style="margin:10px 0;padding-top:8px;border-top:1px solid var(--line)"><div>📄 ${esc(d.name)} <small class="mut">${etSz(d.size)}${d.an?" · ✅ analysé, "+d.an.pages+" pages":""}</small></div>${cid==="ref"?`<div class="mut">Ajouté le ${new Date(d.at).toLocaleDateString("fr-CA")}</div><input placeholder="Édition ou version (ex. CNB 2020 modifié)" value="${esc(d.ed||"")}" oninput="etEd('ref','${d.id}',this.value)" aria-label="Édition">${etMois(d.at)>=6?`<div style="color:var(--red)">⏰ Ajouté il y a ${etMois(d.at)} mois : vérifie s'il existe une nouvelle édition (liens officiels plus bas).</div>`:""}`:""}${d.an&&d.an.chars<d.an.pages*150?`<div class="mut" style="color:var(--red)">Peu de texte lu : ce PDF est peut-être une numérisation (images). Le tuteur ne pourra pas s'en servir.</div>`:""}<div class="row" style="margin-top:6px;align-items:center">${/pdf$/i.test(d.name)&&!d.an?`<button class="alt" onclick="etAnalyse('${cid}','${d.id}')">🔎 Analyser</button>`:""}<button class="alt" onclick="etOpen('${d.id}')">Ouvrir</button>${etDest(cid).replace('data-id=""','data-id="'+d.id+'"')}<button class="warn" onclick="etDel('${cid}','${d.id}')">Suppr.</button></div></div>`).join(""):`<div class="mut">Aucun document pour l'instant.</div>`}</div>`}
 function etMove(from,id,to){const L=S.et.docs[from]||[],d=L.find(x=>x.id===id);if(!d||!to)return;S.et.docs[from]=L.filter(x=>x.id!==id);(S.et.docs[to]||(S.et.docs[to]=[])).push(d);etSave();render()}
 function etMergeAll(){if(!confirm("Verser tous tes recueils de cours dans les références? Rien n'est perdu : les documents sont seulement déplacés."))return;ETU_COURS.forEach(c=>{(S.et.docs[c.id]||[]).forEach(d=>(S.et.docs.ref||(S.et.docs.ref=[])).push(d));S.et.docs[c.id]=[]});etSave();render()}
@@ -1248,12 +1248,12 @@ function inv(){const all=etInvAll(),used=new Set(),M=S.et.inv||{};let ok=0,tot=0
 const blocks=ETINV.map(([g,items])=>{const rows=items.map(([n,re,hint])=>{tot++;const hit=all.filter(x=>re.test(x.d.name)||re.test(x.nm));hit.forEach(h=>used.add(h.d.id));const k=etInvKey(n),man=M[k],det=hit.length>0,have=man!==undefined?man:det;if(have)ok++;
 let info="";if(det){const h=hit[0],an=/\.(pdf|docx|txt|md)$/i.test(h.d.name);if(!h.d.an&&an)pend++;info=`${esc(h.where)} · ${h.d.an?"✅ lu, "+h.d.an.pages+" "+(h.d.an.txt?"parties":"pages"):an?"⚠ ajouté mais pas encore analysé":"ajouté"}${hit.length>1?" · "+hit.length+" fichiers":""}`+(h.d.an&&h.d.an.chars<h.d.an.pages*150?`<div style="color:var(--red)">Peu de texte lu : PDF numérisé ?</div>`:"")+(man===false?" · <i>décoché à la main</i>":"")}
 else info=man===true?"Coché à la main (pas trouvé dans Lisa : "+esc(hint)+")":"À ajouter : "+esc(hint);
-const tg=etInvTarget(hint),tn=tg==="ref"?"📚 Références":(etC(tg)?etC(tg).nom:"le cours"),btns=det?`<button class="alt" style="padding:4px 10px" onclick="etOpen('${hit[0].d.id}')">📖 Ouvrir</button><button class="alt" style="padding:4px 10px" onclick="etInvGo('${hit[0].cid}')">↗ ${esc(hit[0].where)}</button>`:`<button style="padding:4px 10px" onclick="document.getElementById('invf_${k}').click()">➕ Ajouter ici</button><button class="alt" style="padding:4px 10px" onclick="etInvGo('${tg}')">↗ Aller dans ${esc(tn)}</button><input type="file" multiple hidden id="invf_${k}" onchange="etAdd('${tg}',this)">`;
+const tg=etInvTarget(hint),tn=tg==="ref"?"📚 Références":(etC(tg)?etC(tg).nom:"le cours"),btns=det?`<button class="alt" style="padding:4px 10px" onclick="etOpen('${hit[0].d.id}')">📖 Ouvrir</button><button class="alt" style="padding:4px 10px" onclick="etInvGo('${hit[0].cid}')">↗ ${esc(hit[0].where)}</button>${etDest(hit[0].cid).replace('data-id=""','data-id="'+hit[0].d.id+'"')}`:`<button style="padding:4px 10px" onclick="document.getElementById('invf_${k}').click()">➕ Ajouter ici</button><button class="alt" style="padding:4px 10px" onclick="etInvGo('${tg}')">↗ Aller dans ${esc(tn)}</button><input type="file" multiple hidden id="invf_${k}" onchange="etAdd('${tg}',this)">`;
 return `<div style="display:flex;gap:10px;align-items:flex-start;margin:10px 0"><input type="checkbox" aria-label="${esc(n)}" style="width:24px;height:24px;margin:2px 0 0;flex:none" ${have?"checked":""} onchange="etInvTog('${k}',this.checked)"><div style="flex:1;min-width:0">${esc(n)}<div class="mut">${info}</div><div class="row" style="margin-top:6px;gap:6px">${btns}</div></div></div>`}).join("");
 return `<h2>${g}</h2><div class="card">${rows}</div>`}).join("");
 const oth=all.filter(x=>!used.has(x.d.id));
 return `<button class="alt" onclick="go('home')">← Accueil</button><h2>📋 Mes documents</h2><div class="mut">Coche chaque document que tu as. Lisa coche d'elle-même ceux qu'elle trouve dans ton appareil (par le nom du fichier) ; tu peux cocher ou décocher à la main, par exemple pour un document que tu as sur papier ou sous un autre nom.</div>
-<div class="card"><b>${ok} / ${tot}</b> documents de la liste<span>${pend?` · <span style="color:var(--red)">${pend} à analyser</span>`:""}</span><div style="background:var(--line);border-radius:99px;height:10px;margin-top:6px"><div style="background:var(--pri);height:10px;border-radius:99px;width:${tot?Math.round(ok/tot*100):0}%"></div></div></div>${blocks}${oth.length?`<h2>📎 Autres fichiers</h2><div class="card">${oth.map(x=>`<div style="margin:6px 0">📄 ${esc(x.d.name)}<div class="mut">${esc(x.where)}${x.d.an?" · ✅ lu":""}</div></div>`).join("")}</div>`:""}<div class="mut">Un document coché à la main n'est pas lu par le tuteur : pour que Lisa s'en serve, ajoute le fichier dans le cours ou dans 📚 Références.</div>`}
+<div class="card"><b>${ok} / ${tot}</b> documents de la liste<span>${pend?` · <span style="color:var(--red)">${pend} à analyser</span>`:""}</span><div style="background:var(--line);border-radius:99px;height:10px;margin-top:6px"><div style="background:var(--pri);height:10px;border-radius:99px;width:${tot?Math.round(ok/tot*100):0}%"></div></div></div>${blocks}${oth.length?`<h2>📎 Autres fichiers</h2><div class="card">${oth.map(x=>`<div style="margin:8px 0;padding-top:6px;border-top:1px solid var(--line)">📄 ${esc(x.d.name)}<div class="mut">${esc(x.where)}${x.d.an?" · ✅ lu":""}</div><div class="row" style="margin-top:6px;gap:6px;align-items:center"><button class="alt" style="padding:4px 10px" onclick="etOpen('${x.d.id}')">📖 Ouvrir</button>${etDest(x.cid).replace('data-id=""','data-id="'+x.d.id+'"')}</div></div>`).join("")}</div>`:""}<div class="mut">Un document coché à la main n'est pas lu par le tuteur : pour que Lisa s'en serve, ajoute le fichier dans le cours ou dans 📚 Références.</div>`}
 // Devoirs à choix multiples : guider, repérer les pièges, fiches de révision, photo de la question
 const ETQ_TH=["Droit civil","Entreprise et vie privée","RBQ et garantie","Codes","Norme BNQ 3009-500","Loi 16","✨ Mes recueils"];
 // Fiches : t = question de révision, a = à retenir, p = piège fréquent, k = mots-clés, f = point à valider (raison)
@@ -3577,7 +3577,7 @@ const t=moGet(id);if(!t)return;moDocs(t).forEach(d=>{try{const x=IDB.db.transact
 /* ===== Version installable (hors Claude) ===== */
 if(!(window.claude&&claude.use)){DL={save:async({filename,data})=>{const t=/\.json$/i.test(filename)?"application/json":/\.html?$/i.test(filename)?"text/html":"text/plain";const b=data instanceof Blob?data:new Blob([data],{type:t});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}}}
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
-window.LISA_V="33";
+window.LISA_V="36";
 function lisaToast(m,btn){let t=document.getElementById("lisat");if(!t){t=document.createElement("div");t.id="lisat";t.setAttribute("role","status");t.style.cssText="position:fixed;left:12px;right:12px;bottom:76px;z-index:99999;background:#0f4c5c;color:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 4px 16px rgba(0,0,0,.3);display:flex;gap:10px;align-items:center;justify-content:space-between";document.body.appendChild(t)}t.innerHTML="";const s=document.createElement("span");s.textContent=m;t.appendChild(s);if(btn){const b=document.createElement("button");b.textContent=btn[0];b.style.cssText="flex:none;background:#fff;color:#0f4c5c;border:0;border-radius:8px;padding:8px 12px;font-weight:700";b.onclick=btn[1];t.appendChild(b)}else setTimeout(()=>{try{t.remove()}catch(e){}},5000)}
 async function lisaUpdate(){const o=document.getElementById("luo"),say=m=>{if(o)o.textContent=m;lisaToast(m)};
 try{if(!("serviceWorker" in navigator)){location.reload();return}
@@ -3861,6 +3861,154 @@ window.__lcw=0;etSave();chatDraw()}
 const _v28rb=etRefBox;
 etRefBox=function(){return _v28rb.apply(null,arguments).replace("le passage est surligné en jaune","le passage est surligné en bleu")};
 
-</script></body></html>
+</script>
+<script>
+/* ===== Version 34 : documents permanents (Lisa de Claude) ===== */
+(function(){
+const PERM={L:[],by:{},ok:0,et:0,done:0};window.LISA_PERM=PERM;
+function msg(t){try{if(t&&window.lisaMsg)lisaMsg(t)}catch(e){}}
+const g0=IDB.get.bind(IDB);
+IDB.get=async function(k){let v;try{v=await g0(k)}catch(e){v=undefined}
+ if(k==="et"){PERM.et=1;setTimeout(permTry,60)}
+ if(v!=null||typeof k!=="string")return v;
+ let id,kind;if(k.indexOf("etdoc:")===0){id=k.slice(6);kind="d"}else if(k.indexOf("etxt:")===0){id=k.slice(5);kind="t"}else return v;
+ const p=PERM.by[id];if(!p)return v;
+ try{if(kind==="d"){if(!p.url)return v;msg("⏳ J'ouvre « "+p.name.replace(/\.\w+$/,"")+" » depuis ta bibliothèque permanente…");const r=await fetch(p.url);if(!r.ok)throw new Error("http");const b=await r.blob();const f=new File([b],p.name,{type:p.type||b.type||"application/pdf"});try{await IDB.set(k,f)}catch(e){}return f}
+  if(!p.an)return v;const r=await fetch("txt/"+id+".json");if(!r.ok)throw new Error("http");const a=await r.json();try{await IDB.set(k,a)}catch(e){}return a}
+ catch(e){return v}};
+function permTry(){if(PERM.done||!PERM.ok||!PERM.et||!IDB.db||typeof S==="undefined"||!S.et)return;PERM.done=1;
+ S.et.docs=S.et.docs||{};const del=S.et.pdel||[];let n=0;
+ PERM.L.forEach(p=>{if(del.indexOf(p.id)>=0)return;let d=null;for(const c in S.et.docs){const f=(S.et.docs[c]||[]).find(x=>x.id===p.id);if(f){d=f;break}}
+  if(!d){d={id:p.id,name:p.name,type:p.type,size:p.size,at:p.at,perm:1};(S.et.docs[p.c]||(S.et.docs[p.c]=[])).push(d);n++}
+  if(p.an&&!d.an){d.an=p.an;n++}});
+ if(n){try{etSave()}catch(e){}try{render()}catch(e){}}}
+fetch("docs-perm.json",{cache:"no-store"}).then(r=>r.ok?r.json():[]).then(a=>{if(!Array.isArray(a))return;PERM.L=a;a.forEach(p=>PERM.by[p.id]=p);PERM.ok=1;permTry()}).catch(()=>{});
+setTimeout(function w(){if(PERM.done)return;if(IDB.db){PERM.et=1;permTry()}else setTimeout(w,1000)},3000);
+const dl=window.etDel;if(typeof dl==="function")window.etDel=function(cid,id){const r=dl.apply(this,arguments);try{if(PERM.by[id]&&!(S.et.docs[cid]||[]).some(d=>d.id===id)){S.et.pdel=S.et.pdel||[];if(S.et.pdel.indexOf(id)<0)S.et.pdel.push(id);etSave()}}catch(e){}return r};
+const mv=window.etMove;if(typeof mv==="function")window.etMove=function(from,id,to){const r=mv.apply(this,arguments);try{const k=to==="ref"?{ic:"📚",nom:"Références"}:ETU_COURS.find(x=>x.id===to);if(k&&(S.et.docs[to]||[]).some(d=>d.id===id))msg("✅ Déplacé dans "+k.ic+" "+k.nom)}catch(e){}return r};
+const sv=window.edSave;if(typeof sv==="function")window.edSave=async function(){const keep={};for(const c in (S.et.docs||{})){const a=S.et.docs[c]||[];if(a.some(d=>d.perm)){keep[c]=a;S.et.docs[c]=a.filter(d=>!d.perm)}}
+ try{return await sv.apply(this,arguments)}finally{for(const c in keep){const cur=S.et.docs[c]||[];S.et.docs[c]=keep[c].concat(cur.filter(d=>!keep[c].some(x=>x.id===d.id)))}}};
+})();
+</script>
+<script>
+/* ===== Version 35 : sauvegarde nuage (Lisa de Claude) + stockage persistant ===== */
+(function(){
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(e){}
+const SY={ready:0,pulled:0,busy:0,again:0,t:null,known:new Set(),meta:null,restoring:0,st:"",at:0};window.LISA_SYNC=SY;
+function msg(t){try{if(t&&window.lisaMsg)lisaMsg(t)}catch(e){}}
+const KEYS={et:"et",nt:"nt",agenda:"ag",cn:"cn",prof:"prof"};
+const s0=IDB.set.bind(IDB),g1=IDB.get.bind(IDB);
+function fnv(s,h){for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(16).padStart(8,"0")}
+const hh=s=>fnv(s,2166136261)+fnv(s,84696351)+s.length.toString(36);
+function sched(fast){if(!SY.ready)return;clearTimeout(SY.t);SY.t=setTimeout(push,fast?1200:6000)}
+IDB.set=function(k,v){const r=s0(k,v);if(KEYS[k]&&!SY.restoring&&SY.pulled){s0("synclc",Date.now()).catch(()=>{});sched()}return r};
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&SY.t){clearTimeout(SY.t);push()}});
+const OKT=/\.(pdf|png|jpe?g|gif|webp|txt|md|csv|json)$/i;
+async function d2b(u){const r=await fetch(u);return r.blob()}
+async function b2d(b){return await new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=ko;r.readAsDataURL(b)})}
+function findDoc(id){const D=(typeof S!=="undefined"&&S.et&&S.et.docs)||{};for(const c in D){const d=(D[c]||[]).find(x=>x.id===id);if(d)return d}return null}
+IDB.get=async function(k){const v=await g1(k);if(v!=null||typeof k!=="string")return v;
+ try{if(k.indexOf("etdoc:")===0){const d=findDoc(k.slice(6));if(!d||!d.url)return v;msg("⏳ J'ouvre « "+d.name+" » depuis ton nuage…");const b=await d2b(d.url);const f=new File([b],d.name,{type:d.type||b.type||""});s0(k,f).catch(()=>{});return f}
+  if(k.indexOf("etxt:")===0){const d=findDoc(k.slice(5));if(!d||!d.turl)return v;const a=await (await fetch(d.turl)).json();s0(k,a).catch(()=>{});return a}
+  if(k.indexOf("etpimg:")===0){const U=(S.et&&S.et.pimgU)||{},u=U[k.slice(7)];if(!u)return v;const x=await b2d(await d2b(u));s0(k,x).catch(()=>{});return x}}catch(e){}
+ return v};
+function bundle(){return {et:S.et,nt:S.nt||[],ag:S.ag||[],cn:S.cn||{},prof:S.prof||{}}}
+function pieces(){const b=bundle(),out=[];for(const k of Object.keys(b.et||{}))out.push(["et."+k,JSON.stringify(b.et[k])]);["nt","ag","cn","prof"].forEach(k=>out.push([k,JSON.stringify(b[k])]));return out}
+const N=60000;
+async function upFiles(){if(!SY.as)return 0;let ch=0;const D=S.et.docs||{};
+ for(const c in D)for(const d of (D[c]||[])){if(d.perm||d.url||d.nou)continue;
+  try{const f=await g1("etdoc:"+d.id);if(!f)continue;if(f.size>20*1048576||!OKT.test(d.name||"")){d.nou=1;ch=1;continue}
+   const r=await SY.as.upload(f);d.url=r.url;ch=1;
+   const t=await g1("etxt:"+d.id);if(t){const r2=await SY.as.upload(new Blob([JSON.stringify(t)],{type:"application/json"}));d.turl=r2.url}}catch(e){if(e&&e.code==="quota_exceeded"){d.nou=1;ch=1}}}
+ const P=S.et.pimg||{},U=S.et.pimgU||(S.et.pimgU={});
+ for(const k in P)for(const im of (P[k]||[])){if(!im||!im.id||U[im.id])continue;try{const x=await g1("etpimg:"+im.id);if(!x)continue;const r=await SY.as.upload(await d2b(x));U[im.id]=r.url;ch=1}catch(e){}}
+ if(ch)await s0("et",S.et);return ch}
+async function push(){clearTimeout(SY.t);SY.t=null;if(!SY.ready||!SY.pulled)return;if(SY.busy){SY.again=1;return}SY.busy=1;
+ try{await upFiles();const parts=[],need=[];
+  for(const [k,s] of pieces()){const hs=[];for(let i=0;i<s.length||i===0;i+=N){const c=s.slice(i,i+N),h=hh(c);hs.push(h);if(!SY.known.has(h))need.push([h,c])}parts.push([k,hs])}
+  const sig=hh(JSON.stringify(parts));if(SY.meta&&SY.meta.sig===sig){SY.busy=0;return}
+  for(const [h,c] of need){await SY.db.doc(SY.base+"/lisa_c_"+h).set({s:c});SY.known.add(h)}
+  const at=Date.now(),old=SY.meta,meta={v:35,at,sig,parts};await SY.db.doc(SY.base+"/lisa_meta").set(meta);SY.meta=meta;
+  await s0("syncat",at);SY.at=at;SY.st="ok";
+  if(old&&old.parts){const keep=new Set();parts.forEach(p=>p[1].forEach(h=>keep.add(h)));old.parts.forEach(p=>p[1].forEach(h=>{if(!keep.has(h)){SY.known.delete(h);SY.db.doc(SY.base+"/lisa_c_"+h).delete().catch(()=>{})}}))}}
+ catch(e){SY.st="err";if(e&&e.code==="quota_exceeded")msg("⚠ L'espace de sauvegarde nuage est plein.")}
+ finally{SY.busy=0;if(SY.again){SY.again=0;sched(1)}}}
+const isO=x=>x&&typeof x==="object"&&!Array.isArray(x);
+function mArr(l,r){if(!Array.isArray(l)||!Array.isArray(r))return r;if(!r.every(x=>x&&x.id!=null)||!l.every(x=>x&&x.id!=null))return r.length>=l.length?r:l;const ids=new Set(r.map(x=>x.id));return r.concat(l.filter(x=>!ids.has(x.id)))}
+function mObj(l,r,dep){if(!isO(l)||!isO(r))return Array.isArray(r)?mArr(l,r):r;const o=Object.assign({},r);for(const k in l){if(!(k in r))o[k]=l[k];else if(dep>0)o[k]=isO(r[k])?mObj(l[k],r[k],dep-1):Array.isArray(r[k])?mArr(l[k],r[k]):r[k]}return o}
+function mDocs(l,r){const o=mObj(l||{},r||{},1),seen=new Set();for(const c in o){o[c]=(o[c]||[]).filter(d=>{if(!d||seen.has(d.id))return false;seen.add(d.id);return true})}return o}
+async function pull(meta,merge){const C={},get=async h=>{if(C[h]!==undefined)return C[h];const d=await SY.db.doc(SY.base+"/lisa_c_"+h).get();if(!d.exists)throw new Error("piece");return C[h]=String((d.data()||{}).s||"")};
+ const b={et:{}};for(const [k,hs] of meta.parts){let s="";for(const h of hs)s+=await get(h);const v=JSON.parse(s);if(k.indexOf("et.")===0)b.et[k.slice(3)]=v;else b[k]=v;hs.forEach(h=>SY.known.add(h))}
+ SY.restoring=1;try{try{await s0("syncbak",{at:Date.now(),b:bundle()})}catch(e){}
+  if(merge){const L=bundle();const e=mObj(L.et||{},b.et,2);e.docs=mDocs((L.et||{}).docs,b.et.docs);b.et=e;b.nt=mArr(L.nt,b.nt||[]);b.ag=mArr(L.ag,b.ag||[]);b.cn=mObj(L.cn,b.cn||{},1);b.prof=mObj(L.prof,b.prof||{},0)}
+  const only=S.et&&S.et.only;S.et=Object.assign({mode:"",suivi:{},notes:{},docs:{}},b.et);if(only){S.et.only=only;S.et.mode="etu"}
+  if(Array.isArray(b.nt))S.nt=b.nt;if(Array.isArray(b.ag))S.ag=b.ag;if(b.cn)S.cn=b.cn;if(b.prof)S.prof=b.prof;
+  await s0("et",S.et);await s0("nt",S.nt||[]);await s0("agenda",S.ag||[]);if(S.cn)await s0("cn",S.cn);if(S.prof)await s0("prof",S.prof);
+  try{if(window.LISA_PERM){LISA_PERM.done=0}}catch(e){}try{render()}catch(e){}}finally{SY.restoring=0}}
+async function init(){if(SY.started)return;SY.started=1;
+ try{if(!window.claude||!claude.use)return;const db=await claude.use("db"),u=await claude.use("user");if(!db||!u)return;const id=await u.id();if(!id)return;
+  SY.db=db;SY.base="data/users/"+id;try{SY.as=await claude.use("assets")}catch(e){SY.as=null}SY.ready=1;
+  const m=await db.doc(SY.base+"/lisa_meta").get(),meta=m.exists?m.data():null;
+  const lc=(await g1("synclc"))||0,sa=(await g1("syncat"))||0;
+  const mg=!sa||lc>sa;if(meta&&meta.parts&&meta.at!==sa){await pull(meta,mg);SY.meta=meta;await s0("syncat",meta.at);await s0("synclc",meta.at);SY.at=meta.at;SY.st="ok";msg("☁️ Tes notes, surlignages et documents sont à jour.")}
+  else{if(meta&&meta.parts){SY.meta=meta;meta.parts.forEach(p=>p[1].forEach(h=>SY.known.add(h)))}}
+  SY.pulled=1;if(!meta||lc>sa||mg||!SY.meta)sched(1);else setTimeout(()=>sched(1),20000)}
+ catch(e){SY.st="err"}}
+const gw=IDB.get;IDB.get=async function(k){const v=await gw(k);if(k==="et")setTimeout(init,150);return v};
+setTimeout(function w(){if(SY.started)return;if(IDB.db)init();else setTimeout(w,1000)},3500);
+})();
+</script>
+<script>
+/* ===== Version 36 : coffre à outils (crayon, règle, flèche, cadre, cercle, texte) ===== */
+(function(){
+const DT=[["pen","✏️ Crayon"],["line","📏 Règle"],["arr","➡️ Flèche"],["box","⬜ Cadre"],["ell","⭕ Cercle"],["txt","🔤 Texte"]];
+const DTK=new Set(DT.map(x=>x[0]));
+const DC={r:"#dc2626",j:"#ca8a04",v:"#16a34a",b:"#2563eb",n:"#111827"};
+const DCN={r:"Rouge",j:"Jaune",v:"Vert",b:"Bleu",n:"Noir"};
+const DW=[[1,"Fin"],[2,"Moyen"],[4,"Gros"]];
+const T=()=>v28T(),isD=()=>DTK.has(T().tool);
+const all=()=>S.et.draw||(S.et.draw={});
+const key=()=>etHlKey();
+function col(o){return DC[o.c]||DC.r}
+function poly(o){const p=o.p;if(o.t==="box"&&p.length>1){const[a,b]=p[0],[c,d]=p[1];return[[a,b],[c,b],[c,d],[a,d],[a,b]]}
+ if(o.t==="ell"&&p.length>1){const[a,b]=p[0],[c,d]=p[1],cx=(a+c)/2,cy=(b+d)/2,rx=Math.abs(c-a)/2,ry=Math.abs(d-b)/2,o2=[];for(let i=0;i<=32;i++){const t=i/32*Math.PI*2;o2.push([cx+rx*Math.cos(t),cy+ry*Math.sin(t)])}return o2}return p}
+function drawOne(x,o,W,H){x.save();x.strokeStyle=x.fillStyle=col(o);const lw=Math.max(1.5,(o.w||2)*W/420);x.lineWidth=lw;x.lineCap="round";x.lineJoin="round";
+ if(o.t==="txt"){const fs=Math.max(10,(o.s||.032)*W);x.font="600 "+fs+"px system-ui,sans-serif";x.textBaseline="top";String(o.x||"").split("\n").forEach((l,i)=>x.fillText(l,o.p[0][0]*W,o.p[0][1]*H+i*fs*1.2));x.restore();return}
+ const P=poly(o);if(P.length<2){x.restore();return}x.beginPath();x.moveTo(P[0][0]*W,P[0][1]*H);for(let i=1;i<P.length;i++)x.lineTo(P[i][0]*W,P[i][1]*H);x.stroke();
+ if(o.t==="arr"){const[a,b]=P[0],[c,d]=P[P.length-1],ang=Math.atan2((d-b)*H,(c-a)*W),L=lw*4+8;x.beginPath();x.moveTo(c*W,d*H);x.lineTo(c*W-L*Math.cos(ang-.45),d*H-L*Math.sin(ang-.45));x.moveTo(c*W,d*H);x.lineTo(c*W-L*Math.cos(ang+.45),d*H-L*Math.sin(ang+.45));x.stroke()}
+ if(o.t==="line"&&o.m){const[a,b]=P[0],[c,d]=P[1];x.font="600 "+Math.max(10,W*.022)+"px system-ui";x.fillText(o.m,(a+c)/2*W+6,(b+d)/2*H-6)}
+ x.restore()}
+function hit(o,a,b,W,H){if(o.t==="txt"){const fs=(o.s||.032),ls=String(o.x||"").split("\n"),w=Math.max(...ls.map(l=>l.length))*fs*.55,h=ls.length*fs*1.2*W/H;return a>=o.p[0][0]-.01&&a<=o.p[0][0]+w+.01&&b>=o.p[0][1]-.01&&b<=o.p[0][1]+h+.01}
+ const P=poly(o),tol=.02;for(let i=0;i<P.length;i++){const p=P[i],q=P[i+1]||p,dx=(q[0]-p[0])*W,dy=(q[1]-p[1])*H,l2=dx*dx+dy*dy;let t=l2?(((a-p[0])*W)*dx+((b-p[1])*H)*dy)/l2:0;t=Math.max(0,Math.min(1,t));const ex=(p[0]-a)*W+t*dx,ey=(p[1]-b)*H+t*dy;if(Math.hypot(ex,ey)<tol*W)return true}return false}
+let cv=null,st=null;
+function redraw(tmp){if(!cv)return;const x=cv.getContext("2d"),W=cv.width,H=cv.height;x.clearRect(0,0,W,H);(all()[key()]||[]).forEach(o=>drawOne(x,o,W,H));if(tmp)drawOne(x,tmp,W,H)}
+function setPE(){const ov=$("etvov");const on=ETV.mark&&isD();if(cv)cv.style.pointerEvents=on?"auto":"none";if(ov)ov.style.pointerEvents=ETV.mark&&!on?"auto":"none"}
+function snap(o,a,b){const[x0,y0]=o.p[0],W=cv.width,H=cv.height,dx=(a-x0)*W,dy=(b-y0)*H,ang=Math.atan2(dy,dx),st=Math.PI/4,r=Math.round(ang/st)*st;if(Math.abs(ang-r)<.1){const L=Math.hypot(dx,dy);return[x0+L*Math.cos(r)/W,y0+L*Math.sin(r)/H]}return[a,b]}
+function eraseAt(a,b){const A=all(),L=A[key()];if(!L||!cv)return 0;const i=L.findIndex(o=>hit(o,a,b,cv.width,cv.height));if(i<0)return 0;L.splice(i,1);if(!L.length)delete A[key()];redraw();return 1}
+function txtSheet(a,b){let s=$("v28sh");if(s)s.remove();s=document.createElement("div");s.id="v28sh";s.className="v28sheet";s.setAttribute("role","dialog");
+ s.innerHTML=`<b>🔤 Texte sur la page</b><textarea id="v36tx" rows="3" style="margin-top:6px" placeholder="Écris ton texte…"></textarea><div class="row" style="margin-top:8px"><button type="button" id="v36ok">Placer</button><button type="button" class="alt" onclick="$('v28sh').remove()">Annuler</button></div>`;document.body.appendChild(s);
+ $("v36ok").onclick=()=>{const t=($("v36tx").value||"").trim();s.remove();if(!t)return;const A=all(),L=A[key()]||(A[key()]=[]);L.push({t:"txt",c:T().dcol||"n",s:.018+.008*(T().dw||2),x:t,p:[[a,b]]});etSave();redraw()};setTimeout(()=>{const t=$("v36tx");if(t)t.focus()},50)}
+function attach(){const ov=$("etvov");if(!ov||ov.__v36)return;ov.__v36=1;cv=document.createElement("canvas");cv.id="etvdr";cv.width=ov.width;cv.height=ov.height;cv.style.cssText="position:absolute;left:0;top:0;width:"+ov.style.width+";height:"+ov.style.height+";touch-action:none;cursor:crosshair";
+ ov.parentNode.insertBefore(cv,ov.nextSibling);
+ const P=e=>{const bb=cv.getBoundingClientRect();return[(e.clientX-bb.left)/bb.width,(e.clientY-bb.top)/bb.height]};
+ cv.onpointerdown=e=>{if(!ETV.mark||!isD())return;e.preventDefault();const[a,b]=P(e),t=T().tool;if(t==="txt"){txtSheet(a,b);return}cv.setPointerCapture(e.pointerId);st={t,c:T().dcol||"r",w:T().dw||2,p:[[a,b]]}};
+ cv.onpointermove=e=>{if(!st)return;let[a,b]=P(e);if(st.t==="pen"){const l=st.p[st.p.length-1];if(Math.hypot(a-l[0],b-l[1])>.003)st.p.push([a,b])}else{if(st.t==="line"||st.t==="arr")[a,b]=snap(st,a,b);st.p[1]=[a,b];if(st.t==="line"){const W=cv.width,H=cv.height,dx=(a-st.p[0][0])*W,dy=(b-st.p[0][1])*H,dg=Math.round(Math.abs(Math.atan2(-dy,dx)*180/Math.PI));st.m=(dg>90?180-dg:dg)+"°"}}redraw(st)};
+ cv.onpointerup=()=>{if(!st)return;const o=st;st=null;const ok=o.p.length>1&&Math.hypot(o.p[o.p.length-1][0]-o.p[0][0],o.p[o.p.length-1][1]-o.p[0][1])>.008||(o.t==="pen"&&o.p.length>3);if(ok){delete o.m;const A=all();(A[key()]||(A[key()]=[])).push(o);etSave()}redraw()};
+ const er=e=>{if(!ETV.mark||T().tool!=="er")return;if(e.type==="pointermove"&&!e.buttons&&e.pointerType==="mouse")return;const bb=ov.getBoundingClientRect();if(eraseAt((e.clientX-bb.left)/bb.width,(e.clientY-bb.top)/bb.height))etSave()};
+ ov.addEventListener("pointerdown",er);ov.addEventListener("pointermove",er);
+ setPE();redraw()}
+const _d=etVDraw;etVDraw=async function(){const r=await _d.apply(this,arguments);try{cv=null;attach()}catch(e){}return r};
+const _p=v28Pal;v28Pal=function(){_p.apply(this,arguments);const p=$("etvpal");if(!p||!ETV.mark)return;const t=T(),d=isD();
+ const sel=d?`<span class="v28sep"></span>`+Object.keys(DC).map(k=>`<button type="button" class="v28c${(t.dcol||"r")===k?" on":""}" style="background:${DC[k]};color:#fff" aria-pressed="${(t.dcol||"r")===k}" title="${DCN[k]}" onclick="v28Set('dcol','${k}')">${DCN[k]}</button>`).join("")+DW.map(w=>`<button type="button" class="${(t.dw||2)===w[0]?"":"alt"}" aria-pressed="${(t.dw||2)===w[0]}" onclick="v28Set('dw',${w[0]})">${w[1]}</button>`).join(""):"";
+ p.insertAdjacentHTML("beforeend",`<span class="v28sep"></span><b style="align-self:center;font-size:.9em">🧰 Outils</b>`+DT.map(x=>`<button type="button" class="${t.tool===x[0]?"":"alt"}" aria-pressed="${t.tool===x[0]}" onclick="v28Set('tool','${x[0]}')">${x[1]}</button>`).join("")+`<button type="button" class="alt" onclick="v36Undo()">↩️ Annuler</button>`+sel);setPE()};
+window.v36Undo=function(){const A=all(),L=A[key()];if(!L||!L.length){try{lisaMsg("Rien à annuler sur cette page.")}catch(e){}return}L.pop();if(!L.length)delete A[key()];etSave();redraw()};
+const _m=etVMark;etVMark=function(){const r=_m.apply(this,arguments);setPE();return r};
+const _s=v28Set;v28Set=function(k,v){const r=_s.apply(this,arguments);setPE();if(cv)cv.style.cursor="crosshair";return r};
+const _l=etVLeg;etVLeg=function(){_l.apply(this,arguments);const l=$("etvleg");if(!l||!ETV.mark||!isD())return;const tip={pen:"Dessine librement avec ton doigt.",line:"Glisse pour tracer une ligne droite (elle s'aligne toute seule à 0°, 45° et 90°).",arr:"Glisse pour tracer une flèche.",box:"Glisse pour encadrer une zone.",ell:"Glisse pour entourer une zone.",txt:"Touche la page à l'endroit où écrire."}[T().tool];l.innerHTML="✍️ "+tip+" · ↩️ Annuler enlève le dernier trait · la 🧽 Gomme efface aussi les dessins."};
+})();
+</script>
+
+
+</body></html>
 
 </body></html>
