@@ -111,7 +111,7 @@ function homeInsp(){const n=S.list.filter(i=>i.status==="en cours").length;retur
 <button class="big" onclick="newInsp()">✨ Nouvelle inspection</button>
 <button class="big alt" onclick="S.cur=(S.list.find(i=>i.status==='en cours')||{}).id;S.cur?go('tour'):alert('Aucune inspection en cours.')">🔄 Inspection en cours <span class="pill">${n}</span></button>
 <button class="big alt" onclick="go('old')">📂 Anciennes inspections</button>
-<h2>Gestion</h2><div class="grid2"><button class="tile" onclick="go('feu')"><span>🔥</span>Réglementation feu<small>DRF, portes, avertisseurs</small></button><button class="tile" onclick="go('agenda')"><span>📅</span>Agenda des visites</button><button class="tile" onclick="go('clients')"><span>👥</span>Clients</button><button class="tile" onclick="go('factures')"><span>🧾</span>Facturation</button><button class="tile" onclick="go('trad')"><span>🌐</span>Traducteur FR / EN</button><button class="tile" onclick="go('profil')"><span>👤</span>Mon profil<small>logo, sceau, signature</small></button><button class="tile" onclick="go('calc')"><span>🧮</span>Calculatrice<small>et convertisseur</small></button><button class="tile" onclick="go('lexique')"><span>📖</span>Lexique FR / EN<small>termes de l'inspection</small></button><button class="tile" onclick="openRg('home')"><span>🏛️</span>Quel code s'applique ?<small>régime et partie du Code</small></button><button class="tile" onclick="openNotes('home')"><span>🎙️</span>Notes vocales<small>${(S.nt||[]).length?(S.nt.length+" note"+(S.nt.length>1?"s":"")):"dicte, ça s'écrit en note"}</small></button></div>${bkCard()}<p class="mut">Prototype : tes données restent sur cet appareil. Aucune estimation de coûts de réparation n'est produite.</p><p class="mut" style="font-size:12px">Version 38 · 18 nov. 2026</p>`}
+<h2>Gestion</h2><div class="grid2"><button class="tile" onclick="go('feu')"><span>🔥</span>Réglementation feu<small>DRF, portes, avertisseurs</small></button><button class="tile" onclick="go('agenda')"><span>📅</span>Agenda des visites</button><button class="tile" onclick="go('clients')"><span>👥</span>Clients</button><button class="tile" onclick="go('factures')"><span>🧾</span>Facturation</button><button class="tile" onclick="go('trad')"><span>🌐</span>Traducteur FR / EN</button><button class="tile" onclick="go('profil')"><span>👤</span>Mon profil<small>logo, sceau, signature</small></button><button class="tile" onclick="go('calc')"><span>🧮</span>Calculatrice<small>et convertisseur</small></button><button class="tile" onclick="go('lexique')"><span>📖</span>Lexique FR / EN<small>termes de l'inspection</small></button><button class="tile" onclick="openRg('home')"><span>🏛️</span>Quel code s'applique ?<small>régime et partie du Code</small></button><button class="tile" onclick="openNotes('home')"><span>🎙️</span>Notes vocales<small>${(S.nt||[]).length?(S.nt.length+" note"+(S.nt.length>1?"s":"")):"dicte, ça s'écrit en note"}</small></button></div>${bkCard()}<p class="mut">Prototype : tes données restent sur cet appareil. Aucune estimation de coûts de réparation n'est produite.</p><p class="mut" style="font-size:12px">Version 39 · 21 nov. 2026</p>`}
 function old(){const q=S.q.toLowerCase();const l=S.list.filter(i=>i.status!=="en cours"&&(i.client.nom+" "+i.client.adresse).toLowerCase().includes(q));
 setTimeout(()=>{const s=$("q");if(s)s.oninput=e=>{S.q=e.target.value;render();$("q").focus()}},0);
 return `<button class="alt" onclick="go('home')">← Accueil</button><h2>Anciennes inspections</h2><input id="q" placeholder="Chercher par nom ou adresse" value="${esc(S.q)}">`+(l.length?l.map(i=>`<div class="card"><b>${esc(i.client.nom)||"Sans nom"}</b><div class="mut">${esc(i.client.adresse)} · ${new Date(i.created).toLocaleDateString("fr-CA")} · ⏱ ${tfmt(tel(i))}</div><div class="row" style="margin-top:8px"><button class="alt" onclick="openInsp(${i.id},'report')">Voir le rapport</button><button class="warn" onclick="askEdit(${i.id})">Modifier</button></div>${i.modifs.length?`<div class="mut">Modifié ${i.modifs.length} fois (dernière : ${new Date(i.modifs.at(-1)).toLocaleString("fr-CA")})</div>`:""}</div>`).join(""):`<p class="mut">Aucun rapport archivé pour l'instant. Termine une inspection pour la retrouver ici.</p>`)}
@@ -1386,7 +1386,7 @@ if(s.tab==="f")body=etqFiches();else if(s.tab==="p")body=etqPieges();else body=`
 return `<div class="row"><button class="alt" onclick="go('home')">← Accueil</button></div><h1>Devoirs QCM</h1>${tabs}${body}<style>.etq-chip{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:2px 10px;margin:3px 4px 3px 0}</style>`}
 // Page « À propos » (mode étudiant) : ce qu'est Lisa, ses limites, les données, l'IA
 function apropos(){const sec=(t,b)=>`<div class="card"><b>${t}</b><div style="margin-top:4px">${b}</div></div>`;
-return `<div class="row"><button class="alt" onclick="go('home')">← Accueil</button></div><h1>À propos de Lisa</h1><div class="mut">Version du 7 novembre 2026</div>
+return `<div class="row"><button class="alt" onclick="go('home')">← Accueil</button></div><h1>À propos de Lisa</h1><div class="mut">Version du 21 novembre 2026</div>
 ${sec("🎓 Qu'est-ce que Lisa ?","Un outil personnel fait par un étudiant, pour étudier et pratiquer l'inspection en bâtiment au Québec : chercher dans le Code, comprendre un sujet, s'exercer, suivre ses notes et ses documents.")}
 ${sec("⚠️ Ce que Lisa n'est pas","Ce n'est <b>pas</b> un document officiel d'un collège, de la RBQ, du BNQ ni d'aucun organisme. Elle ne remplace ni les recueils, ni le Code, ni ton enseignant. Les fiches, le livre et l'Atelier sont des résumés rédigés avec l'aide d'une IA (Claude) : ils peuvent contenir des erreurs. <b>Valide toujours</b> avec tes recueils, le Code et ton prof avant de t'y fier ou de les utiliser dans un travail noté.")}
 ${sec("🤖 Comment Lisa a été faite","Lisa a été construite par un étudiant avec l'aide de Claude, une IA d'Anthropic, qui a écrit le code et les textes. Le contenu n'a pas été validé par un expert ni par un enseignant, et Lisa n'est affiliée à aucun collège, ordre ou organisme. Elle ne contient ni les recueils de cours ni la norme BNQ : tu ajoutes tes propres documents, qui restent sur ton appareil. En version Claude, les questions et les photos que tu envoies à l'IA sont transmises à Claude.")}
@@ -4103,6 +4103,257 @@ window.v37Calc=function(){const n=id=>parseFloat((($(id)||{}).value||"").replace
  const fi=$("v37fi"),fo=$("v37fo");if(fi&&fo){const ft=parseLen(fi.value);fo.textContent=ft>0?ftin(ft)+" = "+Math.round(ft*304.8)+" mm = "+String(Math.round(ft*.3048*1000)/1000).replace(".",",")+" m":""}
  const A=parseLen(($("v37a")||{}).value),B=parseLen(($("v37b")||{}).value),C=parseLen(($("v37c")||{}).value),so=$("v37so");if(so){let t="";if(A>0&&B>0){const sf=A*B;t+="Surface : "+String(Math.round(sf*10)/10).replace(".",",")+" pi² = "+String(Math.round(sf*.092903*100)/100).replace(".",",")+" m²";if(C>0){const cf=sf*C;t+="<br>Volume : "+String(Math.round(cf*10)/10).replace(".",",")+" pi³ = "+String(Math.round(cf/27*100)/100).replace(".",",")+" vg³ = "+String(Math.round(cf*.0283168*100)/100).replace(".",",")+" m³"}}so.innerHTML=t}};
 })();
+</script>
+<script>
+/* ===== Version 39 : Préférences, mode Étudiant en 3 pages (Étudier / Pratiquer / Mon suivi),
+   défis renouvelés (quiz, mots cachés, problèmes), générateur de constats à clics,
+   bouton Limitation, liste de réparations, PDF plus fiable ===== */
+(function(){const st=document.createElement("style");st.textContent=`
+:root[data-theme="dark"]{--bg:#0e1a1d;--card:#16282c;--ink:#e6eeee;--mut:#93a7aa;--pri:#4fb3c8;--line:#2a4046;color-scheme:dark}
+:root[data-theme="light"]{color-scheme:light}
+.v39mono .rbt,.v39mono .rbic,.v39mono .rbnum,.v39mono .rbbadge,.v39mono .rbpills button{background:var(--card)!important;color:var(--ink)!important}
+.v39mono .rbt{border:1px solid var(--line)!important}.v39mono .rbic{border:1px solid var(--line)}
+.v39mono .rbbar span{filter:grayscale(1)}
+.v39tabs{position:sticky;top:0;z-index:5;display:flex;gap:6px;background:var(--bg);padding:8px 0 6px;margin:4px 0 6px}
+.v39tabs button{flex:1;text-align:center;padding:10px 4px;border-radius:12px;background:var(--card);color:var(--ink);border:1px solid var(--line);font-weight:600;font-size:14px;min-width:0}
+.v39tabs button.on,.v39seg button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+:root[data-theme="dark"] .v39tabs button.on,:root[data-theme="dark"] .v39seg button.on{color:#06181c}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .v39tabs button.on,:root:not([data-theme="light"]) .v39seg button.on{color:#06181c}}
+.v39head{display:flex;align-items:center;gap:8px}.v39head h1{flex:1}
+.v39seg{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
+.v39seg button{flex:1;text-align:center;background:var(--bg);color:var(--ink);border:1px solid var(--line);min-width:0}
+.v39wg{display:grid;gap:3px;user-select:none;-webkit-user-select:none;margin:8px 0}
+.v39wg button{aspect-ratio:1;padding:0;min-width:0;border-radius:6px;font-weight:700;font-size:15px;text-align:center;background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.v39wg button.sel{background:var(--acc);color:#1d1400;border-color:var(--acc)}
+.v39wg button.fd{background:#bbf7d0;color:#14532d;border-color:#86efac}
+.v39words{display:flex;flex-wrap:wrap;gap:6px}.v39words span{border:1px solid var(--line);border-radius:99px;padding:3px 10px;font-size:14px}
+.v39words span.ok{background:#bbf7d0;color:#14532d;text-decoration:line-through;border-color:#86efac}
+#v39g{position:fixed;inset:0;z-index:10010;background:var(--bg);color:var(--ink);overflow:auto;padding:14px 14px 90px}
+#v39g .wrap{max-width:640px;margin:auto}
+.v39step{display:flex;gap:6px;margin:8px 0 12px}.v39step span{flex:1;height:6px;border-radius:9px;background:var(--line)}.v39step span.on{background:var(--pri)}
+.v39opt{display:block;width:100%;text-align:left;margin:6px 0;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.v39opt small{display:block;color:var(--mut);font-size:13px}
+.v39ta label{font-weight:600;margin-top:8px}
+.v39kpi{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0}
+.v39kpi div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.v39kpi b{display:block;font-size:22px}
+`;document.head.appendChild(st)})();
+
+/* ----- Préférences ----- */
+const V39DEF={theme:"auto",col:1,fs:"n",rythme:"sem",nq:8,style:"std",resume:1};
+function v39P(){return Object.assign({},V39DEF,(S.et&&S.et.pref)||{})}
+function v39PSet(k,v){if(!S.et)return;(S.et.pref||(S.et.pref={}))[k]=v;etSave();v39Apply();render()}
+function v39Apply(){try{const P=v39P(),r=document.documentElement;if(P.theme==="auto")r.removeAttribute("data-theme");else r.setAttribute("data-theme",P.theme);
+document.body.classList.toggle("v39mono",!P.col);document.body.style.zoom={p:"0.92",n:"",g:"1.12"}[P.fs]||""}catch(e){}}
+function v39Seg(k,opts){const P=v39P();return `<div class="v39seg" role="group">${opts.map(([v,t])=>`<button type="button" class="${String(P[k])===String(v)?"on":""}" aria-pressed="${String(P[k])===String(v)}" onclick="v39PSet('${k}',${typeof v==="number"?v:`'${v}'`})">${t}</button>`).join("")}</div>`}
+function prefs(){const P=v39P(),T=typeof v28T==="function"?v28T():{col:"r"},hc=(c,t)=>`<button type="button" class="${T.col===c?"on":""}" onclick="v28T().col='${c}';etSave();render()">${t}</button>`;
+return `<div class="row"><button class="alt" onclick="go('home')">← Accueil</button></div><h1>⚙️ Préférences</h1><div class="mut">Tout se règle ici. Tes choix restent sur ton appareil.</div>
+<div class="card"><b>🎨 Apparence</b>
+<label>Thème</label>${v39Seg("theme",[["auto","📱 Comme le téléphone"],["light","☀️ Clair"],["dark","🌙 Sombre"]])}
+<label>Couleurs de l'accueil</label>${v39Seg("col",[[1,"🌈 En couleur"],[0,"⚪ Sobre"]])}
+<label>Taille du texte</label>${v39Seg("fs",[["p","Petit"],["n","Normal"],["g","Grand"]])}</div>
+<div class="card"><b>🎯 Défis et jeux</b>
+<label>Renouvellement du défi (quiz, mots cachés, problèmes)</label>${v39Seg("rythme",[["jour","Chaque jour"],["sem","Chaque semaine"],["mois","Chaque mois"]])}
+<label>Nombre de questions dans le quiz du défi</label>${v39Seg("nq",[[5,"5"],[8,"8"],[12,"12"]])}
+<div class="mut">Le 🔥 Défi du jour (5 questions) continue de changer chaque jour, peu importe ce réglage.</div></div>
+<div class="card"><b>📝 Constats</b>
+<label>Style de constat par défaut (générateur)</label>${v39Seg("style",[["rap","⚡ Rapide"],["std","📋 Standard"],["det","🔬 Détaillé"]])}
+<div class="mut">Rapide : l'essentiel en une phrase par étape. Standard : le texte complet de la banque. Détaillé : avec les risques et l'article de la norme.</div></div>
+<div class="card"><b>📖 Lecture de mes recueils</b>
+<label>Rouvrir un document à la dernière page consultée</label>${v39Seg("resume",[[1,"Oui"],[0,"Non"]])}
+<label>Couleur de surligneur au départ</label><div class="v39seg">${hc("r","🔴 Rouge")}${hc("j","🟡 Jaune")}${hc("v","🟢 Vert")}</div>
+<div class="mut">Ton système : 🔴 important à retenir ou à faire · 🟡 important sans plus · 🟢 mérite une attention.</div></div>
+<div class="card"><b>🤖 Intelligence artificielle</b><div class="v39seg"><button type="button" class="${aiOff()?"":"on"}" onclick="aiSet('on')">🤖 Avec IA</button><button type="button" class="${aiOff()?"on":""}" onclick="aiSet('off')">🙂 Sans IA</button></div><div class="mut">Sans IA, les boutons d'IA disparaissent. Le générateur de constats à clics marche pareil.</div></div>
+<div class="card"><b>🧭 Mode</b><div class="v39seg"><button type="button" class="${S.et.mode==="etu"?"on":""}" onclick="etSet('etu')">🎓 Étudiant</button>${S.et.only?"":`<button type="button" class="${S.et.mode==="insp"?"on":""}" onclick="etSet('insp')">🏠 Inspection</button>`}</div></div>
+${edCard()}
+<div class="row rbfoot"><button class="alt" onclick="go('apropos')">ℹ️ À propos</button>${window.LISA_V?`<button class="alt" onclick="lisaUpdate()">🔄 Mise à jour</button>`:""}<button class="alt" onclick="v39Reset(this)">↩️ Réglages par défaut</button></div>
+<div class="mut" style="font-size:12px;margin-top:6px">Version 39 · 21 nov. 2026</div>`}
+function v39Reset(b){if(b.dataset.ok!=="1"){b.dataset.ok="1";b.textContent="Touche encore pour confirmer";return}S.et.pref={};etSave();v39Apply();render()}
+if(typeof etView==="function"){const _v39View=etView;etView=function(){if(!v39P().resume)window.__v28nr=1;return _v39View.apply(this,arguments)}}
+
+/* ----- Accueil étudiant : 3 pages ----- */
+function v39Tab(t){S.et.tab=t;etSave();render();scrollTo(0,0)}
+homeEtu=function(){const tab=S.et.tab||"etd";
+const T=(r,ic,t,sm,oc,id)=>`<button ${id?`id="${id}" `:""}class="tile rbt r${r}" onclick="${oc}"><span>${ic}</span>${t}<small>${sm}</small></button>`;
+const R=(r,ic,t,sm,oc)=>`<button class="rbrow" onclick="${oc}"><span class="rbic r${r}">${ic}</span><span>${t}<small>${sm}</small></span><span class="rbgo">›</span></button>`;
+const acc=(k,d,head,body)=>`<details class="card rbacc" ${etUiOpen(k,d)?"open":""} ontoggle="etUi('${k}',this.open)"><summary>${head}<span class="rbcv">⌄</span></summary>${body}</details>`;
+const tabs=`<div class="v39tabs" role="tablist">${[["etd","📖 Étudier"],["pra","🎯 Pratiquer"],["sui","📊 Mon suivi"]].map(([k,t])=>`<button type="button" role="tab" aria-selected="${tab===k}" class="${tab===k?"on":""}" onclick="v39Tab('${k}')">${t}</button>`).join("")}</div>`;
+const head=`<div class="v39head"><h1>Lisa · Étudiant</h1><button class="alt" onclick="go('prefs')" aria-label="Préférences">⚙️</button></div><div class="mut">Outil d'étude personnel · non officiel</div>${tabs}`;
+let body="";
+if(tab==="etd"){const cur=Math.min(...ETU_COURS.filter(c=>c.st==="En cours").map(c=>c.ses).concat([1]));
+const crow=c=>{const p=etProg(c),av=c.st!=="En cours";return `<button class="rbrow" onclick="S.cr='${c.id}';go('cours')"><span class="rbic">${c.ic}</span><span>${esc(c.nom)}<small>${c.ch.length?p.v+"/"+p.n+" chapitres vus":av?"à venir":""}</small></span><span class="rbgo">›</span></button>`};
+const ses=(n,r)=>{const L=ETU_COURS.filter(c=>c.ses===n),en=n===cur;return `<details class="rbses" ${etUiOpen("s"+n,en)?"open":""} ontoggle="etUi('s${n}',this.open)"><summary><span class="rbnum r${r}">${n}</span><span style="flex:1">Session ${n} ${en?`<span class="rbbadge r${r}">en cours</span>`:`<small class="mut">${L.length} cours</small>`}</span><span class="rbcv">⌄</span></summary>${L.map(crow).join("")}</details>`};
+const mc=S.et.mc&&S.et.mc.id?etC(S.et.mc.cid):null;
+body=`${S.et.hi?"":`<div class="card" style="border-color:var(--pri)"><b>👋 Commence ici</b><ol style="margin:6px 0 8px;padding-left:20px"><li><b>📖 Étudier</b> : tes cours, le Mode cours et les explications.</li><li><b>🎯 Pratiquer</b> : défis, examen blanc, jeux et constats.</li><li><b>📊 Mon suivi</b> : ta progression, tes notes et ta sauvegarde.</li></ol><div class="mut">Tout reste sur ton appareil. Lisa te guide et vérifie, elle ne fait pas ton devoir.</div><button style="margin-top:8px" onclick="S.et.hi=1;etSave();render()">J'ai compris</button></div>`}
+<button class="big" onclick="go('mcours')" style="display:flex;align-items:center;gap:12px"><span style="font-size:30px">🎒</span><span style="flex:1"><b>${mc?"Reprendre ma séance":"Mode cours"}</b><br><small>${mc?esc(mc.nom)+" · page "+(S.et.mc.pg||1):"Suis ton cours page par page dans ton recueil"}</small></span></button>
+<div class="grid2">${T(4,"❓","Questions","Lisa t'explique","go('qa')")}${T(3,"🔍","Comprendre","pourquoi ça arrive","S.cp=null;go('comp')")}${T(1,"🏛️","Quel code ?","régime et partie du Code","openRg('etu')")}${T(6,"💬","Parle à Lisa","écris ou dicte ta demande","chatOpen()")}${T(7,"📚","Références","Code, guides, recherche","go('refs')")}${T(2,"🧰","Boîte à outils","minuteur, signets, photos","go('boite')","v37tile")}</div>
+${acc("cours",true,`<span class="rbic r6">🎓</span><span style="flex:1">Mes cours</span>`,`${ses(1,1)}${ses(2,4)}${ses(3,6)}`)}
+${acc("mais",false,`<span class="rbic r5">🏡</span><span style="flex:1">Comprendre ma maison</span>`,R(5,"🏗️","Construction","de la terre à la clé, étape par étape","S.cs&&(S.cs.st=null);go('constr')")+R(3,"🪵","Le bois de charpente","2x4, 2x8… dimensions, rôle et charge","go('bois')")+R(1,"🔥","Réglementation feu","séparations coupe-feu, avertisseurs","go('feu')")+R(6,"📖","Ma maison, le livre","34 pages, un dessin qui se construit","S.lv&&(S.lv.p=null);go('livre')")+R(7,"🔧","Atelier","réparer les petits bris","S.at&&(S.at.k=null);go('atelier')"))}`}
+else if(tab==="pra"){body=`<span id="v37tile" hidden></span>${djCard()}${v39Card()}
+<div class="grid2">${T(5,"🎯","Examen blanc","QCM tirés de tes recueils","exNew()")}${T(2,"📝","S'entraîner","QCM, pièges, vérification","S.qc&&(S.qc.tab='q');go('qcm')")}${T(4,"🎮","Chantier, le jeu","bâtis la maison en répondant","S.jg=null;go('jeu')")}${T(3,"🔎","Trouve le défaut","entraîne ton œil d'inspecteur","S.oe=null;go('oeil')")}</div>
+${acc("v39con",true,`<span class="rbic r1">📝</span><span style="flex:1">Constats</span>`,R(1,"⚡","Générateur de constats","3 clics : système, défaut, gravité","v39Gen()")+R(4,"✍️","Créer un constat","les 4 étapes, une à la fois","go('ccon')")+R(5,"📚","Bibliothèque de constats","tes modèles réutilisables","go('bib')")+R(2,"🗂️","Banque de constats BNQ","causes, effets et articles de la norme","bnqOpen(0)")+R(7,"🖍️","Annoter une photo","cercles, flèches et texte","go('annot')"))}
+${acc("v39out",false,`<span class="rbic r3">🧭</span><span style="flex:1">Outils terrain</span>`,R(1,"🧭","Outils terrain","niveau, pente, boussole (indicatif)","go('terrain')")+R(3,"🧰","Fiches outils","humidimètre, caméra thermique…","S.ot&&(S.ot.k=null);go('ofiches')"))}`}
+else{const tot=ETU_COURS.reduce((a,c)=>{const p=etProg(c);return{n:a.n+p.n,v:a.v+p.v}},{n:0,v:0}),pc=tot.n?Math.round(tot.v*100/tot.n):0;
+const RB=["#e24b4a","#d85a30","#ef9f27","#639922","#378add","#7f77dd","#d4537e"],on=Math.round(pc*7/100);
+const bar=`<div class="rbbar" role="img" aria-label="Progression : ${pc} %">${RB.map((c,i)=>`<span style="background:${i<on?c:"var(--line)"}"></span>`).join("")}</div>`;
+const per=ETU_COURS.filter(c=>c.ch.length&&c.st==="En cours").map(c=>{const p=etProg(c);return `<div style="margin-top:8px"><div style="display:flex;justify-content:space-between;font-size:14px"><span>${c.ic} ${esc(c.nom)}</span><span class="mut">${p.v}/${p.n}</span></div><div style="background:var(--line);border-radius:99px;height:6px"><div style="background:var(--pri);height:6px;border-radius:99px;width:${p.p}%"></div></div></div>`}).join("");
+const J=djSt(),err=(jgSt().m||[]).length,H=S.et.v39h||[],ex=(S.et.exh||[]).length;
+body=`<span id="v37tile" hidden></span><div class="card"><b>Ma progression</b> <span class="mut">${tot.v}/${tot.n} chapitres vus · ${pc} %</span>${bar}${per}</div>
+<div class="v39kpi"><div><b>🔥 ${djStreak()}</b><span class="mut">jours de suite</span></div><div><b>🗓️ ${H.length}</b><span class="mut">défis terminés</span></div><div><b>🎯 ${ex}</b><span class="mut">examens blancs</span></div></div>
+${err?`<button class="big warn" onclick="jgRev()">🔁 Revoir mes erreurs <span class="pill">${err}</span></button>`:""}
+<div class="card rbacc">${R(5,"📊","Mes notes","suivi et seuils de réussite","go('bul')")+R(6,"📋","Mes documents","ce qu'il me manque","go('inv')")+R(1,"🖍️","Mes surlignages","révision par couleur","go('hlrev')")+R(4,"🎒","Mes séances","résumés du Mode cours","go('mcours')")}</div>
+${edCard()}
+<div class="row rbfoot"><button class="alt" onclick="go('prefs')">⚙️ Préférences</button><button class="alt" onclick="go('apropos')">ℹ️ À propos</button>${window.LISA_V?`<button class="alt" onclick="lisaUpdate()">🔄 Mise à jour</button>`:""}${S.et.only?"":`<button class="alt" onclick="etSet('insp')">🏠 Mode Inspection</button>`}<button class="alt" onclick="etMergeAll()">🏁 Fin de formation</button></div><div class="mut" style="font-size:12px;margin-top:4px">Fin de formation : copie tous tes recueils de cours dans 📚 Références pour les garder après la formation.</div>`}
+return head+body};
+
+/* ----- Défi renouvelé : quiz, mots cachés, problèmes ----- */
+function v39Key(){const P=v39P(),d=new Date();if(P.rythme==="jour")return djDay();if(P.rythme==="mois")return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())),dn=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-dn);const y0=new Date(Date.UTC(t.getUTCFullYear(),0,1));return t.getUTCFullYear()+"-S"+String(Math.ceil(((t-y0)/864e5+1)/7)).padStart(2,"0")}
+function v39Left(){const P=v39P(),d=new Date();if(P.rythme==="jour")return "Nouveau défi demain";if(P.rythme==="mois"){const n=new Date(d.getFullYear(),d.getMonth()+1,1),k=Math.ceil((n-d)/864e5);return "Nouveau défi dans "+k+" jour"+(k>1?"s":"")}const k=8-(d.getDay()||7);return k<=1?"Nouveau défi demain":"Nouveau défi dans "+k+" jours"}
+function v39Lbl(){return {jour:"du jour",sem:"de la semaine",mois:"du mois"}[v39P().rythme]||"de la semaine"}
+function v39Rng(seed){let h=1779033703^seed.length;for(let i=0;i<seed.length;i++){h=Math.imul(h^seed.charCodeAt(i),3432918353);h=h<<13|h>>>19}let a=h>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function v39Sh(a,r){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function v39Qs(n){const qs=[],has=q=>qs.some(z=>z.x===q.x&&z.a===q.a),add=q=>{if(q&&q.o&&qs.length<n&&!has(q))qs.push({...q,o:jgMix(q.o)})};
+jgMix(jgSt().m||[]).slice(0,2).forEach(q=>add({...q,src:"err"}));
+if(typeof ETQ_F!=="undefined"&&ETQ_F.length>=3){const f=jgMix(ETQ_F);for(let k=0;k+2<f.length&&k<6&&qs.length<n;k+=3)add({t:"Lois et règlements",p:"Quelle est la bonne réponse ?",x:f[k].t,a:f[k].a,o:[f[k].a,f[k+1].a,f[k+2].a],why:f[k].p?"Piège à éviter : "+f[k].p:""})}
+for(let k=0;k<2;k++){try{if(typeof boisQ==="function")add(boisQ())}catch(e){}try{if(typeof feuQ==="function")add(feuQ())}catch(e){}}
+let g=0;while(qs.length<n&&g++<80){try{const k=jgMk(Math.floor(Math.random()*ETC.length));add(jgMix(k.qs)[0])}catch(e){}}
+return jgMix(qs)}
+function v39Norm(t){return String(t).normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/Œ/g,"OE").replace(/[^A-Z]/g,"")}
+function v39Words(r){const W=[],seen={};ETC.forEach(e=>e.subs.forEach(x=>(x.w||[]).forEach(w=>{const n=v39Norm(w[0]);if(n.length>=4&&n.length<=10&&!seen[n]&&w[0].split(/\s+/).length<=2){seen[n]=1;W.push({t:w[0],n,d:w[1]})}})));return v39Sh(W,r)}
+function v39Grid(r){const N=11,G=Array(N*N).fill(""),D=[[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0]],out=[];
+for(const w of v39Words(r)){if(out.length>=8)break;let ok=false;for(let tr=0;tr<200&&!ok;tr++){const[dr,dc]=D[Math.floor(r()*(out.length<4?3:D.length))],L=w.n.length,r0=Math.floor(r()*N),c0=Math.floor(r()*N),re=r0+dr*(L-1),ce=c0+dc*(L-1);if(re<0||re>=N||ce<0||ce>=N)continue;let fit=true;for(let i=0;i<L;i++){const x=G[(r0+dr*i)*N+c0+dc*i];if(x&&x!==w.n[i]){fit=false;break}}if(!fit)continue;const cells=[];for(let i=0;i<L;i++){const k=(r0+dr*i)*N+c0+dc*i;G[k]=w.n[i];cells.push(k)}out.push({t:w.t,d:w.d,c:cells});ok=true}}
+const F="EEEEAAAISSNNRRTTULOCDPMVGBFHQ";for(let k=0;k<G.length;k++)if(!G[k])G[k]=F[Math.floor(r()*F.length)];return{N,g:G.join(""),w:out,f:[],sel:-1}}
+function v39Pbs(r){const pk=a=>a[Math.floor(r()*a.length)],fr=(x,d)=>String(Math.round(x*Math.pow(10,d))/Math.pow(10,d)).replace(".",",");
+const gens=[
+()=>{const m=pk([3,4,5,6,7,8,9,10,12]),a=m/12*100;return{t:"Pente de toit",q:`Un toit a une pente de ${m}/12 : il monte de ${m} po pour chaque 12 po à l'horizontale. Quelle est sa pente en pourcentage ?`,a,u:"%",tol:.01,why:`${m} ÷ 12 × 100 = ${fr(a,1)} %.`}},
+()=>{const dm=pk([50,60,75,100,120,150]),L=pk([1.5,2,2.5,3]),a=dm/(L*1000)*100;return{t:"Pente du terrain",q:`Le terrain descend de ${dm} mm sur ${fr(L,1)} m en s'éloignant de la fondation. Quelle est la pente en pourcentage ?`,a,u:"%",tol:.02,why:`${dm} mm ÷ ${L*1000} mm × 100 = ${fr(a,1)} %. Une pente qui éloigne l'eau de la fondation aide à garder le sous-sol au sec.`}},
+()=>{const B=(typeof BOIS!=="undefined"?BOIS:[]).filter(x=>x.h>=64&&x.b>=38);if(!B.length)return null;const p=pk(B);return{t:"Bois de charpente",q:`Quelle est la largeur réelle (la plus grande dimension) d'un ${p.n}, en millimètres ?`,a:p.h,u:"mm",tol:.005,why:`Un ${p.n} mesure réellement ${p.b} × ${p.h} mm (${p.po} po) : le bois est raboté et séché après le sciage, il est donc plus petit que son nom.`}},
+()=>{const A=pk([9,10,11,12,13,14,15,16]),B=pk([8,9,10,11,12,13,14]),a=A*B*.092903;return{t:"Superficie",q:`Une chambre mesure ${A} pi × ${B} pi. Quelle est sa superficie en mètres carrés ?`,a,u:"m²",tol:.02,why:`${A} × ${B} = ${A*B} pi². 1 pi² = 0,0929 m², donc ${A*B} × 0,0929 = ${fr(a,2)} m².`}},
+()=>{const H=pk([2400,2450,2500,2550,2600,2650,2700,2750]),n=pk([13,14,15]),a=H/n;return{t:"Escalier",q:`Un escalier monte de ${H} mm avec ${n} contremarches égales. Quelle est la hauteur de chaque contremarche, en millimètres ?`,a,u:"mm",tol:.01,why:`${H} ÷ ${n} = ${fr(a,1)} mm par contremarche.`}},
+()=>{const x=pk([3.5,5.5,7.25,9.25,11.25]),a=x*25.4;return{t:"Conversion",q:`Combien font ${fr(x,2)} po en millimètres ?`,a,u:"mm",tol:.01,why:`1 po = 25,4 mm, donc ${fr(x,2)} × 25,4 = ${fr(a,1)} mm.`}},
+()=>{const L=pk([16,20,24,28,32]),W=pk([24,26,28,30]),a=L*W/9;return{t:"Matériaux",q:`Un toit plat de ${L} pi × ${W} pi doit être refait. Combien de verges carrées (vg²) cela représente-t-il ? (1 vg² = 9 pi²)`,a,u:"vg²",tol:.02,why:`${L} × ${W} = ${L*W} pi². ${L*W} ÷ 9 = ${fr(a,1)} vg².`}}];
+const out=[];for(const g of v39Sh(gens,r)){if(out.length>=3)break;const p=g();if(p)out.push(Object.assign(p,{v:"",ok:0,n:0}))}return out}
+function v39D(){const k=v39Key(),P=v39P();let D=S.et.v39d;if(!D||D.k!==k){const r=v39Rng("lisa-"+k);D=S.et.v39d={k,qz:{qs:v39Qs(P.nq),qi:0,pick:null,good:0,ph:2},mc:v39Grid(r),pb:v39Pbs(r),done:0};etSave()}return D}
+function v39Stat(D){D=D||v39D();const q=D.qz,qn=q.qs.length,qd=q.ph===3?qn:q.qi,m=D.mc.f.length,mn=D.mc.w.length,p=D.pb.filter(x=>x.ok).length;return{qd,qn,good:q.good,m,mn,p,pn:D.pb.length,all:q.ph===3&&m>=mn&&p>=D.pb.length}}
+function v39Card(){const D=v39D(),s=v39Stat(D);return `<button class="big ${s.all?"alt":""}" onclick="S.v39s='';go('defi')" style="display:flex;align-items:center;gap:12px"><span style="font-size:30px">${s.all?"🏆":"🗓️"}</span><span style="flex:1"><b>Défi ${v39Lbl()}</b><br><small>📝 ${s.qd}/${s.qn} · 🔤 ${s.m}/${s.mn} mots · 🧮 ${s.p}/${s.pn} problèmes</small><br><small style="opacity:.8">${v39Left()}</small></span></button>`}
+function v39Done(D){const s=v39Stat(D);if(s.all&&!D.done){D.done=1;const H=S.et.v39h||(S.et.v39h=[]);H.unshift({k:D.k,at:new Date().toISOString(),q:s.good+"/"+s.qn});if(H.length>60)H.pop();etSave();try{lisaToast("🏆 Défi "+v39Lbl()+" terminé, bravo !")}catch(e){}}}
+function v39QA(k){const D=v39D(),G=D.qz,q=G.qs[G.qi];if(G.pick!==null)return;G.pick=k;const ok=q.o[k]===q.a,J=jgSt();if(ok){G.good++;if(q.src==="err")J.m=(J.m||[]).filter(z=>!(z.x===q.x&&z.a===q.a))}else jgKeep(q);etSave();render()}
+function v39QN(){const D=v39D(),G=D.qz;G.pick=null;G.qi++;if(G.qi>=G.qs.length)G.ph=3;etSave();v39Done(D);render()}
+function v39Cell(k){const D=v39D(),M=D.mc,N=M.N;if(M.sel<0){M.sel=k;M.msg="";render();return}const a=M.sel;M.sel=-1;if(a===k){render();return}
+const r0=Math.floor(a/N),c0=a%N,r1=Math.floor(k/N),c1=k%N,dr=Math.sign(r1-r0),dc=Math.sign(c1-c0),L=Math.max(Math.abs(r1-r0),Math.abs(c1-c0))+1;
+if(!(r0===r1||c0===c1||Math.abs(r1-r0)===Math.abs(c1-c0))){M.msg="Choisis deux lettres sur une même ligne (droite, haut-bas ou diagonale).";render();return}
+const cells=[];for(let i=0;i<L;i++)cells.push((r0+dr*i)*N+c0+dc*i);const key=cells.join(","),rev=cells.slice().reverse().join(",");
+const wi=M.w.findIndex((w,i)=>!M.f.includes(i)&&(w.c.join(",")===key||w.c.join(",")===rev));
+if(wi>=0){M.f.push(wi);M.msg="✅ "+M.w[wi].t+" : "+M.w[wi].d;etSave();v39Done(D)}else M.msg="Pas un mot de la liste. Touche la première lettre, puis la dernière.";render()}
+function v39PbT(i,v){const D=v39D();D.pb[i].v=v}
+function v39PbC(i){const D=v39D(),p=D.pb[i],x=parseFloat(String(p.v).replace(/\s/g,"").replace(",","."));if(isNaN(x)){p.msg="Écris un nombre.";render();return}p.n++;p.ok=Math.abs(x-p.a)<=Math.max(Math.abs(p.a)*p.tol,.051)?1:0;p.msg=p.ok?"✅ Bonne réponse ! "+p.why:"❌ Pas tout à fait. Réessaie"+(p.n>=2?", ou regarde la solution.":".");etSave();v39Done(D);render()}
+function v39PbS(i){const D=v39D(),p=D.pb[i];p.msg="💡 Solution : "+p.why;p.show=1;etSave();render()}
+function defi(){const D=v39D(),s=v39Stat(D),sec=S.v39s||"",top=`<div class="row"><button class="alt" onclick="${sec?"S.v39s='';render()":"go('home')"}">← ${sec?"Le défi":"Accueil"}</button></div>`;
+if(sec==="q"){const G=D.qz;if(G.ph===3)return top+`<h1>📝 Quiz</h1><div class="card" style="text-align:center"><div style="font-size:34px">${G.good===G.qs.length?"🎯":"💪"}</div><b>${G.good} bonne${G.good>1?"s":""} réponse${G.good>1?"s":""} sur ${G.qs.length}</b><div class="mut">Tes erreurs sont gardées et reviendront dans les prochains défis.</div></div><button onclick="S.v39s='';render()">Retour au défi</button>`;
+return top+`<h1>📝 Quiz</h1>`+jgQ(G,"Question "+(G.qi+1)+" sur "+G.qs.length+(G.qs[G.qi].src==="err"?" · 🔁 une de tes erreurs":""),"v39QA","v39QN")}
+if(sec==="m"){const M=D.mc;return top+`<h1>🔤 Mots cachés</h1><div class="mut">Touche la première lettre d'un mot, puis la dernière. Les mots peuvent être à l'horizontale, à la verticale, en diagonale ou à l'envers.</div>
+<div class="v39wg" style="grid-template-columns:repeat(${M.N},1fr)">${[...M.g].map((ch,k)=>{const fd=M.f.some(i=>M.w[i].c.includes(k));return `<button type="button" class="${k===M.sel?"sel":fd?"fd":""}" onclick="v39Cell(${k})" aria-label="Lettre ${ch}">${ch}</button>`}).join("")}</div>
+<div role="status" aria-live="polite" class="card" style="${M.msg?"":"display:none"}">${esc(M.msg||"")}</div>
+<div class="v39words">${M.w.map((w,i)=>`<span class="${M.f.includes(i)?"ok":""}">${esc(w.t)}</span>`).join("")}</div>
+${M.f.length?`<h2>Mots trouvés</h2>`+M.f.map(i=>`<div class="card"><b>${esc(M.w[i].t)}</b> : ${esc(M.w[i].d)}</div>`).join(""):""}`}
+if(sec==="p")return top+`<h1>🧮 Problèmes</h1><div class="mut">Des calculs qu'un inspecteur fait sur le terrain. La virgule ou le point, les deux marchent.</div>`+D.pb.map((p,i)=>`<div class="card"><b>${i+1}. ${esc(p.t)}</b> ${p.ok?"✅":""}<p>${esc(p.q)}</p><div class="row" style="gap:6px;align-items:center"><input inputmode="decimal" style="flex:1" value="${esc(p.v)}" oninput="v39PbT(${i},this.value)" aria-label="Ta réponse"><span>${esc(p.u)}</span><button type="button" onclick="v39PbC(${i})">Vérifier</button></div>${p.msg?`<div class="rbmore" role="status">${esc(p.msg)}</div>`:""}${!p.ok&&p.n>=2&&!p.show?`<button class="alt" style="margin-top:6px" onclick="v39PbS(${i})">Voir la solution</button>`:""}</div>`).join("");
+const row=(k,ic,t,sm,ok)=>`<button class="v39opt" onclick="S.v39s='${k}';render();scrollTo(0,0)"><b>${ok?"✅":ic} ${t}</b><small>${sm}</small></button>`;
+const H=S.et.v39h||[];
+return top+`<h1>🗓️ Défi ${v39Lbl()}</h1><div class="mut">${v39Left()} · tu peux changer le rythme dans ⚙️ Préférences.</div>
+${row("q","📝","Quiz",s.qd+" / "+s.qn+" questions"+(D.qz.ph===3?" · "+s.good+" bonnes réponses":""),D.qz.ph===3)}
+${row("m","🔤","Mots cachés",s.m+" / "+s.mn+" mots du métier trouvés",s.m>=s.mn)}
+${row("p","🧮","Problèmes",s.p+" / "+s.pn+" résolus",s.p>=s.pn)}
+${s.all?`<div class="card" style="text-align:center"><div style="font-size:34px">🏆</div><b>Défi terminé !</b><div class="mut">Reviens au prochain renouvellement pour un nouveau défi.</div></div>`:""}
+${H.length?`<h2>Mes défis terminés</h2><div class="card">${H.slice(0,10).map(h=>`<div>🏆 ${esc(h.k)} · quiz ${esc(h.q)}</div>`).join("")}</div>`:""}
+<div class="card" style="background:var(--bg)"><div class="mut">Jeu d'étude non officiel. Les questions viennent des résumés de Lisa : valide toujours avec tes recueils et ton enseignant.</div></div>`}
+
+/* ----- Générateur de constats à clics ----- */
+const V39PR={"Urgent / sécurité":"Sécurité","Majeur":"Prioritaire","À surveiller":"À surveiller","Mineur / entretien":"Entretien"};
+const V39DL={"Sécurité":"Délai : corriger immédiatement, avant d'utiliser cette partie du bâtiment.","Prioritaire":"Délai : à court terme.","À surveiller":"Délai : surveiller régulièrement et faire corriger si la situation évolue.","Entretien":"Délai : lors de l'entretien courant."};
+function v39G(){return S.v39g||(S.v39g={st:0,sys:"",id:"",q:"",pr:"",sty:v39P().style,out:null,notes:""})}
+async function v39Gen(){S.v39g={st:0,sys:"",id:"",q:"",pr:"",sty:v39P().style,out:null,notes:""};let o=$("v39g");if(!o){o=document.createElement("div");o.id="v39g";o.setAttribute("role","dialog");o.setAttribute("aria-label","Générateur de constats");document.body.appendChild(o)}
+o.innerHTML='<div class="wrap"><div class="mut">⏳ Chargement de la banque de constats…</div></div>';try{await bnqLoad();v39GD()}catch(e){o.innerHTML=`<div class="wrap"><button class="alt" onclick="v39GX()">✕ Fermer</button><div class="card">La banque de constats n'a pas pu être chargée. Ouvre Lisa une fois avec Internet pour la garder sur ton appareil.</div></div>`}}
+function v39Sys(n){const g=v39G();g.sys=(window.__v39sys||[])[n]||"";g.q="";v39Go(1)}
+function v39Pick(id){const g=v39G(),x=(BNQ||[]).find(z=>z.id===id);if(!x)return;g.id=id;g.pr=V39PR[x.priorite]||"À surveiller";g.out=null;v39Go(2)}
+function v39GX(){const o=$("v39g");if(o)o.remove()}
+function v39Go(st){const g=v39G();g.st=st;v39GD();const o=$("v39g");if(o)o.scrollTop=0}
+function v39Split(rec){const m=String(rec||"").split(/\s*Risque si la recommandation n'est pas suivie\s*:\s*/i);return{r:m[0].trim(),k:(m[1]||"").trim()}}
+function v39S1(t){t=String(t||"").trim();const m=t.match(/^.*?[.!?](?=\s|$)/);return m?m[0]:t}
+function v39Build(){const g=v39G(),x=(BNQ||[]).find(z=>z.id===g.id);if(!x)return null;const R=v39Split(x.recommandation),dl=V39DL[g.pr]||"";let o;
+if(g.sty==="rap")o={comp:x.composant,ano:v39S1(x.constat),role:"",cons:v39S1(x.effets),rec:(v39S1(R.r)+" "+dl).trim(),risk:""};
+else if(g.sty==="det")o={comp:x.composant,ano:x.constat,role:"",cons:x.effets,rec:(R.r+" "+dl+" (Réf. : "+x.reference+")").trim(),risk:R.k};
+else o={comp:x.composant,ano:x.constat,role:"",cons:x.effets,rec:(R.r+" "+dl).trim(),risk:R.k};
+o.type=x.type_bnq;o.prio=g.pr;o.art=x.article_bnq;return o}
+function v39GD(){const o=$("v39g");if(!o||!BNQ)return;const g=v39G(),sec=S.view==="section"?S.sec:"",bar=`<div class="v39step">${[0,1,2,3].map(i=>`<span class="${i<=g.st?"on":""}"></span>`).join("")}</div>`;
+const top=`<div class="row"><button class="alt" type="button" onclick="v39GX()">✕ Fermer</button>${g.st>0&&g.st<4?`<button class="alt" type="button" onclick="v39Go(${g.st-1})">← Retour</button>`:""}</div><h1>⚡ Générateur de constats</h1>${g.st<4?bar:""}`;
+let b="";
+if(g.st===0){const all=[...new Set(BNQ.map(x=>x.systeme))],mine=sec?all.filter(s=>(BQS[s]||"")===sec||(sec==="Isolation / ventilation"&&/Isolation|Ventilation|Entretoit/.test(s))):[],rest=all.filter(s=>!mine.includes(s)).sort(),n=s=>BNQ.filter(x=>x.systeme===s).length,btn=s=>`<button class="v39opt" type="button" onclick="v39Sys(${all.indexOf(s)})"><b>${esc(s)}</b><small>${n(s)} constats</small></button>`;
+window.__v39sys=all;b=`<div class="mut">Étape 1 sur 3 · Quel système ?</div>${mine.length?`<h2>Pour la section « ${esc(sec)} »</h2>`+mine.map(btn).join("")+`<h2>Autres systèmes</h2>`:""}${rest.map(btn).join("")}
+<details class="card" style="margin-top:14px"><summary><b>🤖 À partir de mes notes (IA)</b></summary><div class="mut" style="margin:6px 0">Écris tes notes comme elles viennent (ex. : tache noire coin plafond sous-sol, humidité 22 %). L'IA rédige les 4 étapes. ${aiOff()?"Le mode Sans IA est activé : la demande sera copiée pour que tu la colles dans l'IA de ton choix.":""}</div><textarea id="v39n" rows="4" oninput="v39G().notes=this.value">${esc(g.notes||"")}</textarea><button type="button" style="margin-top:8px" onclick="v39AI('notes')">✨ Rédiger le constat</button><div id="v39ai" class="mut" role="status" style="margin-top:6px"></div></details>`}
+else if(g.st===1){const q=etNorm(g.q||"").split(/\s+/).filter(w=>w.length>1),L=BNQ.filter(x=>x.systeme===g.sys&&(!q.length||q.every(w=>etNorm(x.composant+" "+x.constat+" "+x.indices).includes(w))));
+b=`<div class="mut">Étape 2 sur 3 · ${esc(g.sys)} : quel défaut ?</div><label for="v39q">Filtrer</label><input id="v39q" value="${esc(g.q)}" placeholder="ex. : fissure, rouille, solin" oninput="v39G().q=this.value;clearTimeout(window.__v39t);window.__v39t=setTimeout(()=>{v39GD();const i=$('v39q');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},250)">
+<div class="mut" style="margin:6px 0">${L.length} constat${L.length>1?"s":""}</div>${L.map(x=>{const t=BQT[x.type_bnq]||["#e5e7eb",""];return `<button class="v39opt" type="button" onclick="v39Pick('${x.id}')"><span class="bqpill" style="background:${t[0]};color:#222">${esc(t[1])}</span><b>${esc(x.composant)}</b><small>${esc(v39S1(x.constat))}</small></button>`}).join("")}`}
+else if(g.st===2){const x=BNQ.find(z=>z.id===g.id);
+b=`<div class="mut">Étape 3 sur 3 · Gravité et style</div><div class="card"><b>${esc(x.composant)}</b><div class="mut">${esc(v39S1(x.constat))}</div></div>
+<label>Priorité</label><div class="v39seg">${Object.keys(PRIOS).map(p=>`<button type="button" class="${g.pr===p?"on":""}" style="${g.pr===p?"":"border-left:6px solid "+PRIOS[p]}" onclick="v39G().pr='${p}';v39GD()">${p}</button>`).join("")}</div><div class="mut">${esc(PDEF[g.pr]||"")}</div>
+<label style="margin-top:10px">Style du texte</label><div class="v39seg">${[["rap","⚡ Rapide"],["std","📋 Standard"],["det","🔬 Détaillé"]].map(([k,t])=>`<button type="button" class="${g.sty===k?"on":""}" onclick="v39G().sty='${k}';v39GD()">${t}</button>`).join("")}</div>
+<button class="big" type="button" onclick="v39G().out=v39Build();v39Go(3)">Voir le constat →</button>`}
+else if(g.st===3){const O=g.out||(g.out=v39Build()),x=BNQ.find(z=>z.id===g.id)||{},ta=(k,l,h)=>`<label for="v39${k}">${l}</label><textarea id="v39${k}" rows="${h||3}" oninput="v39G().out.${k}=this.value">${esc(O[k]||"")}</textarea>`,ins=!!$("c1");
+b=`<div class="card" style="background:var(--bg)"><div class="mut"><b>À adapter.</b> Les mesures et les endroits sont des exemples : écris ce que tu observes vraiment. L'étape 2 (rôle de la composante) s'écrit avec tes mots.</div></div>
+<div class="row" style="gap:6px;margin:6px 0"><span class="pill" style="border-left:6px solid ${PRIOS[O.prio]||"var(--pri)"}">${esc(O.prio)}</span><span class="pill">${esc(O.type)}</span><span class="pill">BNQ art. ${esc(O.art)}</span></div>
+<div class="v39ta">${ta("comp","1. Composante",2)}${ta("ano","1. Défectuosité (quoi, où, combien)",4)}${ta("role","2. Rôle de la composante (avec tes mots)",2)}${ta("cons","3. Conséquence possible",3)}${ta("rec","4. Recommandation et délai",4)}${ta("risk","Risques si la recommandation n'est pas suivie",2)}</div>
+<details class="card"><summary><b>👀 Indices à vérifier sur place</b></summary><p>${esc(x.indices||"")}</p><p class="mut"><b>🧠 Causes (pour comprendre, ne pas écrire au rapport) :</b> ${esc(x.causes||"")}</p></details>
+<div class="row" style="margin-top:10px;flex-wrap:wrap">${ins?`<button type="button" onclick="v39Ins(this)">✅ Insérer dans mon constat</button>`:""}<button type="button" class="${ins?"alt":""}" onclick="v39Copy(this)">📋 Copier le texte</button><button class="alt" type="button" onclick="v39Keep(this)">💾 Garder comme modèle</button>${aiOff()?"":`<button class="alt" type="button" onclick="v39AI('rew')">🤖 Réécrire avec l'IA</button>`}<button class="alt" type="button" onclick="v39Go(0)">🔁 Autre constat</button></div><div id="v39ai" class="mut" role="status" style="margin-top:6px"></div>`}
+o.innerHTML=`<div class="wrap">${top}${b}</div>`}
+function v39Txt(O){return["Composante : "+O.comp,"Défectuosité : "+O.ano,O.role?"Rôle : "+O.role:"","Conséquence : "+O.cons,"Recommandation : "+O.rec,O.risk?"Risques si non corrigé : "+O.risk:"","Priorité : "+(O.prio||"")].filter(Boolean).join("\n")}
+async function v39Copy(b){const O=v39G().out;if(!O)return;try{await navigator.clipboard.writeText(v39Txt(O));if(b)b.textContent="✓ Copié"}catch(e){if(b)b.textContent="Copie impossible ici"}}
+function v39Keep(b){const O=v39G().out;if(!O)return;libAll().push({id:libId(),sec:S.view==="section"?S.sec:(BQS[v39G().sys]||""),t:(O.comp+" — "+O.ano).slice(0,70),comp:O.comp,ano:O.ano,role:O.role||"",cons:O.cons,rec:O.rec,n:"Générateur · "+(O.prio||"")+" · art. "+(O.art||"")});etSave();if(b){b.textContent="✓ Gardé dans mes modèles";b.disabled=true}}
+function v39Ins(bt){const O=v39G().out;if(!O)return;const F={c1:O.comp,c2:O.ano,c3:O.cons,c4:O.rec},full=Object.keys(F).some(k=>($(k)||{value:""}).value.trim());if(full&&bt&&bt.dataset.ok!=="1"){bt.dataset.ok="1";bt.textContent="⚠️ Touche encore pour remplacer le texte déjà écrit";return}
+Object.keys(F).forEach(k=>{const e=$(k);if(e)e.value=F[k]||""});const cr=$("cr");if(cr&&O.role)cr.value=O.role;const e2=$("ex2");if(e2&&O.risk&&!e2.value.trim())e2.value=O.risk;
+const ty=$("ty");if(ty&&[...ty.options].some(op=>op.text===O.type))ty.value=O.type;const pr=$("pr");if(pr&&O.prio)pr.value=O.prio;v39GX();const c=$("c1");if(c)c.scrollIntoView({block:"center"});const k=$("chkx");if(k)k.textContent="⚡ Constat inséré. Écris le rôle de la composante avec tes mots et adapte les mesures à ce que tu as vu."}
+async function v39AI(mode){const g=v39G(),o=$("v39ai");if(!o)return;const RULES="Tu aides un étudiant inspecteur en bâtiment au Québec (norme BNQ 3009-500). Rédige un constat en 4 étapes : composante et défectuosité (seulement ce qui est visible, quoi/où/combien), rôle de la composante, conséquence possible, recommandation avec délai (sans méthode de réparation, sans coûts, sans déterminer la cause). Français du Québec, phrases simples. Réponds UNIQUEMENT en JSON : {\"comp\":\"\",\"ano\":\"\",\"role\":\"\",\"cons\":\"\",\"rec\":\"\",\"risk\":\"\",\"prio\":\"Sécurité|Prioritaire|À surveiller|Entretien\"}";
+let p;if(mode==="notes"){const n=(g.notes||"").trim();if(n.length<5){o.textContent="Écris d'abord quelques mots dans tes notes.";return}p=RULES+"\n\nNotes de l'étudiant sur le terrain :\n"+n}else{const O=g.out;if(!O)return;p=RULES+"\n\nRéécris ce constat dans un style "+({rap:"très concis",std:"professionnel et clair",det:"détaillé et précis"}[g.sty]||"clair")+", en gardant les faits :\n"+v39Txt(O)}
+o.textContent="⏳ Lisa rédige…";try{const r=await etAI(p);if(r.copied){o.textContent=r.text||"Demande copiée : colle-la dans l'IA de ton choix.";return}const m=String(r.text||"").match(/\{[\s\S]*\}/);if(!m)throw{code:"invalid_json"};const J=JSON.parse(m[0]);
+g.out={comp:J.comp||"",ano:J.ano||"",role:J.role||"",cons:J.cons||"",rec:J.rec||"",risk:J.risk||"",prio:PRIOS[J.prio]?J.prio:(g.out&&g.out.prio)||"À surveiller",type:(g.out&&g.out.type)||"",art:(g.out&&g.out.art)||""};g.st=3;v39GD();const o2=$("v39ai");if(o2)o2.textContent="✨ Texte rédigé par l'IA : relis-le et adapte-le."}catch(e){o.textContent="⚠ "+aiErr(e)}}
+
+/* ----- Limitation rapide (vers le Bouclier juridique) ----- */
+function v39Lim(){const sec=S.sec||"";go("bouclier");setTimeout(()=>{const z=$("zo");if(z&&sec)z.value=sec;const t=$("zt");if(t)t.placeholder="Ex. : toiture enneigée, panneau bloqué par des boîtes, trappe d'entretoit scellée";const f=$("zp");if(f)f.scrollIntoView({block:"center"})},60)}
+
+/* ----- Liste de réparations (pour les entrepreneurs) ----- */
+const V39TR=[["⚡ Maître électricien","électric|cmeq|panneau|disjoncteur|ddft|prise|câbl"],["🚰 Plombier","plomb|cmmtq|robinet|drain|égout|chauffe-eau|clapet|tuyau"],["🏠 Couvreur","couvr|toiture|bardeau|solin|noue|gouttière"],["🔥 Chauffage, ventilation, cheminée","chauff|ventil|thermopompe|fournaise|ramon|cheminée|échangeur|conduit"],["🧱 Fondations et drainage","fondation|fissure|drain français|imperméabil|injection"],["📐 Ingénieur ou expert","ingénieur|expert|structur|évaluation approfondie"]];
+function v39Trade(c){const t=etNorm([c.rec,c.exp,c.comp].join(" "));for(const[n,rx]of V39TR)if(new RegExp(rx).test(t))return n;return "🔨 Entrepreneur général"}
+function v39Items(i){const L=[],O=Object.keys(PRIOS);SECTIONS.forEach(s=>((i.sections[s]||{}).constats||[]).forEach((c,n)=>L.push({s,n,c,tr:v39Trade(c),p:c.prio||"À surveiller"})));return L.sort((a,b)=>O.indexOf(a.p)-O.indexOf(b.p))}
+function v39rep(){const i=cur();if(!i)return `<button class="alt" onclick="go('home')">← Accueil</button>`;const L=v39Items(i),X=i.v39x||{},G={};L.forEach(x=>{(G[x.tr]||(G[x.tr]=[])).push(x)});const k=x=>x.s+":"+x.n;
+return `<div class="row"><button class="alt" onclick="go('report')">← Rapport</button></div><h1>🧾 Liste de réparations</h1><div class="mut">Pour envoyer aux entrepreneurs sans leur donner tout le rapport. Décoche ce que tu ne veux pas inclure. Aucun coût n'est indiqué.</div>
+${L.length?Object.keys(G).map(t=>`<h2>${esc(t)}</h2>`+G[t].map(x=>`<label class="card" style="display:flex;gap:10px;align-items:flex-start;border-left:8px solid ${PRIOS[x.p]}"><input type="checkbox" style="width:22px;height:22px;flex:none;margin:2px 0 0" ${X[k(x)]?"":"checked"} onchange="v39X('${k(x)}',!this.checked)"><span><b>${esc(x.c.comp)}</b> <span class="pill">${esc(x.p)}</span><br><span class="mut">${esc(x.s)}</span><br>${esc(x.c.rec)}</span></label>`).join("")).join("")+`<div class="row" style="margin-top:10px"><button onclick="v39RepSave()">📤 Enregistrer ou partager</button><button class="alt" onclick="v39RepCopy(this)">📋 Copier</button></div><div id="v39rx" class="mut" role="status"></div>`:`<div class="card mut">Aucun constat dans cette inspection.</div>`}`}
+function v39X(k,v){const i=cur(),X=i.v39x||(i.v39x={});if(v)X[k]=1;else delete X[k];save()}
+function v39RepTxt(){const i=cur(),c=i.client||{},X=i.v39x||{},L=v39Items(i).filter(x=>!X[x.s+":"+x.n]),G={};L.forEach(x=>(G[x.tr]||(G[x.tr]=[])).push(x));
+return "LISTE DE RÉPARATIONS RECOMMANDÉES\n"+(c.adresse?"Adresse : "+c.adresse+"\n":"")+(c.date?"Inspection du "+c.date+"\n":"")+"Extrait du rapport d'inspection : à lire avec le rapport complet. Aucune estimation de coûts.\n\n"+Object.keys(G).map(t=>t.replace(/^\S+\s/,"").toUpperCase()+"\n"+G[t].map(x=>"- ["+x.p+"] "+x.c.comp+" ("+x.s+") : "+x.c.rec).join("\n")).join("\n\n")}
+async function v39RepSave(){const i=cur(),t=v39RepTxt(),n=String(i.client.dossier||i.client.nom||"lisa").replace(/[^A-Za-z0-9_-]+/g,"-"),o=$("v39rx"),fn="Liste-reparations-"+n+".txt";
+try{if(navigator.canShare&&navigator.share){const f=new File([t],fn,{type:"text/plain"});if(navigator.canShare({files:[f]})){await navigator.share({files:[f],title:"Liste de réparations"});return}}}catch(e){if(e&&e.name==="AbortError")return}
+try{await v39SaveAny({filename:fn,data:new Blob([t],{type:"text/plain"})});if(o)o.textContent="✅ Liste enregistrée."}catch(e){if(o&&(!e||e.code!=="declined"))o.textContent="Impossible d'enregistrer ici : utilise 📋 Copier."}}
+async function v39RepCopy(b){try{await navigator.clipboard.writeText(v39RepTxt());b.textContent="✓ Copié"}catch(e){b.textContent="Copie impossible ici"}}
+
+/* ----- PDF et fichiers : enregistrement plus fiable ----- */
+async function v39Dl({filename,data}){const b=data instanceof Blob?data:new Blob([data]);
+try{if(navigator.canShare&&navigator.share&&/Android|iPhone|iPad/i.test(navigator.userAgent)){const f=new File([b],filename,{type:b.type||"application/octet-stream"});if(navigator.canShare({files:[f]})){await navigator.share({files:[f],title:filename});return}}}catch(e){if(e&&e.name==="AbortError")throw{code:"declined"}}
+const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),8000)}
+async function v39SaveAny(o){if(DL){try{return await DL.save(o)}catch(e){if(e&&e.code==="declined")throw e}}return v39Dl(o)}
+if(typeof pdf==="function"){const _v39pdf=pdf;pdf=async function(){const d0=DL;DL={save:async o=>{if(d0){try{return await d0.save(o)}catch(e){if(e&&e.code==="declined")throw e}}return v39Dl(o)}};try{await _v39pdf()}finally{DL=d0}const i=cur();if(i){i.v39pdf=new Date().toISOString();save()}}}
+
+/* ----- Branchements dans les écrans existants ----- */
+const _v39home=home;home=function(){let h=_v39home();if(S.et&&S.et.mode==="insp")h=h.replace(`🎓 Mode Étudiant</button>`,`🎓 Mode Étudiant</button><button class="alt" onclick="go('prefs')">⚙️ Préférences</button>`);return h};
+const _v39sec=section;section=function(){let h=_v39sec();return h.replace(`<label for="bq">📚 Banque de constats</label>`,`<div class="row" style="margin-bottom:10px;gap:6px"><button type="button" onclick="v39Gen()">⚡ Générateur de constats</button><button class="alt" type="button" onclick="v39Lim()">🚫 Limitation</button></div><label for="bq">📚 Banque de constats</label>`)};
+const _v39rep=report;report=function(){let h=_v39rep();return h.replace(`<button onclick="pdf()">Télécharger le PDF</button>`,`<button onclick="pdf()">📄 Enregistrer en PDF</button><button class="alt" onclick="go('v39rep')">🧾 Liste de réparations</button>`)};
+const V39V={prefs:()=>prefs(),defi:()=>defi(),v39rep:()=>v39rep()};
+const _v39r=render;
+render=function(){v39Apply();if(S.view!=="report"&&window.__v39t){window.__v39t=0;const t=$("lisat");if(t)t.remove()}if(S.et&&V39V[S.view]){try{bkTrack()}catch(e){}try{if(NT.on)ntStop()}catch(e){}try{if(typeof DICT!=="undefined"&&DICT)dictStop()}catch(e){}AN=null;PH=[];MES=[];$("app").innerHTML=V39V[S.view]();try{tbar()}catch(e){}try{bkBtn()}catch(e){}try{aiPost()}catch(e){}try{v28Fab()}catch(e){}try{pmBadge()}catch(e){}return}
+const r=_v39r.apply(this,arguments);
+if(S.view==="report"){const i=cur();if(i&&!i.v39pdf&&!i.v39ask){i.v39ask=1;save();setTimeout(()=>{try{window.__v39t=1;lisaToast("📄 Rapport prêt. L'enregistrer en PDF ?",["Enregistrer",()=>{const t=$("lisat");if(t)t.remove();pdf()}])}catch(e){}},400)}}
+return r};
+window.LISA_V="39";
+
 </script>
 
 
